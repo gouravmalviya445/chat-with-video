@@ -6,7 +6,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@config/*": ["./src/config/*"]
     },
     "module": "ESNext",
     "moduleResolution": "bundler",
