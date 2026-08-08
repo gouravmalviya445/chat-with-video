@@ -8,11 +8,14 @@ dotenv.config({
 
 const envSchema = z.object({
   PORT: z.string().optional().default("8001"),
+
+  // postgres db url
+  DATABASE_URL: z.url({ message: "DATABASE_URL is required" }),
 })
 
 const {data: env, success, error} = envSchema.safeParse(process.env);
 
-if (!success) {
+if (!success || env === undefined) {
   console.error("Invalid environment variables:", error.issues);
   process.exit(1);
 } else {
