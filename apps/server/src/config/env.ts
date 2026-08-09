@@ -16,7 +16,7 @@ const envSchema = z.object({
 const {data: env, success, error} = envSchema.safeParse(process.env);
 
 if (!success || env === undefined) {
-  console.error("Invalid environment variables:", error.issues);
+  console.error("Invalid environment variables:\n", error.issues.map((issue, idx) => `${idx + 1}. ${ issue.message }`).join("\n"));
   process.exit(1);
 } else {
   console.log("Environment variable loaded from env file")
