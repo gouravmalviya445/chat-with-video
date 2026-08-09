@@ -2,6 +2,12 @@
   "name": "backend",
   "module": "src/index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "start": "bun run dist/index.js",
+    "build": "bunx tsc",
+    "type:check": "bunx tsc --noEmit"
+  },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest",
