@@ -10,6 +10,7 @@ if (!connectionString) {
 
 const pool = new Pool({
   connectionString,
+  min: 5,
   max: 10,
   idleTimeoutMillis: 30000, // idle time out for clients after no use
 });
