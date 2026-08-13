@@ -7,7 +7,6 @@
     "start": "bun run dist/index.js",
     "build": "bunx tsc",
     "type:check": "bunx tsc --noEmit",
-
     "db:push": "bunx drizzle-kit push",
     "db:studio": "bunx drizzle-kit studio",
     "db:generate": "bunx drizzle-kit generate",
@@ -27,9 +26,12 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.26",
+    "@langchain/community": "^1.1.29",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "express": "^5.2.1",
+    "langchain": "^1.5.8",
     "pg": "^8.22.0",
     "zod": "^4.4.3"
   }
