@@ -1,0 +1,1 @@
+ALTER TABLE "video_chunks" ADD COLUMN "embedding" vector(384);
