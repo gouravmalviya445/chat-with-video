@@ -23,7 +23,9 @@ const videos = pgTable("videos", {
   // Foreign Key
   userId: uuid("user_id")
     .notNull()
-    .references((): AnyPgColumn => users.id),
+    .references((): AnyPgColumn => users.id, {
+      onDelete: "cascade"
+    }),
 
   // Video Information
   title: text("title").notNull(),
