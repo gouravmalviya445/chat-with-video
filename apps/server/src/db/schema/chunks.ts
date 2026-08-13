@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   uuid,
+  vector
 } from "drizzle-orm/pg-core";
 
 import { videos } from "./videos";
@@ -31,6 +32,10 @@ const videoChunks = pgTable("video_chunks", {
   endTime: real("end_time").notNull(),
 
   tokenCount: integer("token_count"),
+
+  embedding: vector("embedding", {
+    dimensions: 384,
+  }),
 
   createdAt: timestamp("created_at", {
     withTimezone: true,
