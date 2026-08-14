@@ -3,7 +3,7 @@ import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/
 
 const embeddings = new HuggingFaceInferenceEmbeddings({
   model: "sentence-transformers/all-MiniLM-L6-v2",
-  apiKey: env?.HUGGINGFACE_API_KEY
+  apiKey: env?.HF_API_KEY
 })
 
 export { embeddings }
