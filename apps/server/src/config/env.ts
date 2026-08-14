@@ -11,6 +11,8 @@ const envSchema = z.object({
 
   // postgres db url
   DATABASE_URL: z.url({ message: "DATABASE_URL is required" }),
+
+  HF_API_KEY: z.string({ message: "HUGGINGFACE_API_KEY is required" }),
 })
 
 const {data: env, success, error} = envSchema.safeParse(process.env);
