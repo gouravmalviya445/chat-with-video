@@ -8,7 +8,7 @@ dotenv.config({
 
 const envSchema = z.object({
   PORT: z.string().optional().default("8001"),
-  NODE_ENV: z.string().default("development"),
+  NODE_ENV: z.enum(["production", "development"]),
   DATABASE_URL: z.url({ message: "DATABASE_URL is required" }),
   HF_API_KEY: z.string({ message: "HUGGINGFACE_API_KEY is required" }),
   REDIS_HOST: z.string({ message: "REDIS_HOST is required" }),
