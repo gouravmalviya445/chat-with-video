@@ -1,3 +1,4 @@
+import { env } from "@/config/env";
 import { ApiResponse } from "@/utils/ApiResponse";
 import type { Request, Response, NextFunction } from "express";
 import { HttpError } from "http-errors";
@@ -5,27 +6,26 @@ import { HttpError } from "http-errors";
 
 function globalErrorHandlerMiddleware(
   err: HttpError,
-  req: Request,
+  _r: Request,
   res: Response,
-  next: NextFunction,
+  _n: NextFunction,
 ) {
-  let { statusCode, message } = err;
-  // If the error is an instance of HttpError, it will have a statusCode and message.
-  // Otherwise, we'll default to 500 and "Internal Server Error".
-  if (!(err instanceof HttpError)) {
-    statusCode = 500;
-    message = "Internal Server Error";
+  let statusCode = 500;
+  let message = "Internal Server Error";
+
+  if (err instanceof HttpError) {
+    statusCode = err.statusCode
+    message = err.message;
   }
-  console.log()
 
   res
     .status(statusCode)
-    .json(new ApiResponse(
+    .json({
+      success: statusCode < 400,
       statusCode,
       message,
-      null,
-      err
-    ));
+      ...(env?.NODE_ENV === "development" ? { stack: err?.stack } : {})
+    });
 }
 
 export {
