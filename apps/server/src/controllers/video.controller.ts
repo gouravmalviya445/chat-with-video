@@ -64,9 +64,12 @@ async function createYouTubeVideoController(
   }
 }
 
+/**
+ * checks the video status and returns the video metadata
+ */
 async function getVideoController(req: Request, res: Response, next: NextFunction) {
   try {
-    const videoId = req.params?.videoId as (string | undefined);
+    const videoId = req.params?.id as (string | undefined);
 
     if (!videoId) {
       next(createHttpError(400, "Video ID is required"));
