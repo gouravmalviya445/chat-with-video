@@ -11,7 +11,7 @@ import {
 import { users } from "./users";
 
 const videoStatusEnum = pgEnum("video_status", [
-  "UPLOADING",
+  "PENDING",
   "PROCESSING",
   "READY",
   "FAILED",
@@ -35,7 +35,7 @@ const videos = pgTable("videos", {
   duration: integer("duration"),
 
   status: videoStatusEnum("status")
-    .default("UPLOADING")
+    .default("PENDING")
     .notNull(),
 
   createdAt: timestamp("created_at", {
