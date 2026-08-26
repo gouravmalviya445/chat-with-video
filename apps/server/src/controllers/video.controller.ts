@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { createYouTubeVideo } from "@repository/video.repository";
+import { createYouTubeVideo, findVideoById } from "@repository/video.repository";
 import { enqueueVideoIngestion } from "@services/queue.service";
 import { createYouTubeVideoSchema } from "@validators/video.validator";
 
@@ -11,7 +11,7 @@ import createHttpError from "http-errors";
 /**
  * creates a youtube video entry in the database and pushes a job to the queue for fetching and processing the video.
  */
-export async function createYouTubeVideoController(
+async function createYouTubeVideoController(
   req: Request,
   res: Response,
   next: NextFunction
@@ -62,4 +62,39 @@ export async function createYouTubeVideoController(
   } catch (error: any) {
     next(createHttpError(500, "Internal server error", error));
   }
+}
+
+async function getVideoController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const videoId = req.params?.videoId as (string | undefined);
+
+    if (!videoId) {
+      next(createHttpError(400, "Video ID is required"));
+      return;
+    }
+
+    // check the status of video
+    const video = await findVideoById(videoId);
+
+    if (!video) {
+      next(createHttpError(404, "Video not found"));
+      return;
+    }
+
+    res
+      .status(200)
+      .json(new ApiResponse(
+        200,
+        "Video fetched successfully",
+        video,
+      ));
+    return;
+  } catch (error: any) {
+    next(createHttpError(500, "Error while fetching video"));
+  }
+}
+
+export {
+  createYouTubeVideoController,
+  getVideoController
 }
