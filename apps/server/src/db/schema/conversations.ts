@@ -5,16 +5,16 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { users } from "./users";
+import { user } from "./auth";
 import { videos } from "./videos";
 
 const conversations = pgTable("conversations", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   // Foreign key to the user who owns this conversation
-  userId: uuid("user_id")
+  userId: text("user_id")
     .notNull()
-    .references(() => users.id, {
+    .references(() => user.id, {
       onDelete: "cascade",
     }),
 

@@ -8,7 +8,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { users } from "./users";
+import { user } from "./auth";
 
 const videoStatusEnum = pgEnum("video_status", [
   "PENDING",
@@ -21,9 +21,9 @@ const videos = pgTable("videos", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   // Foreign Key
-  userId: uuid("user_id")
+  userId: text("user_id")
     .notNull()
-    .references((): AnyPgColumn => users.id, {
+    .references((): AnyPgColumn => user.id, {
       onDelete: "cascade"
     }),
 
