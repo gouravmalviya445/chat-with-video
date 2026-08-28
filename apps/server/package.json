@@ -19,6 +19,7 @@
     "@types/bun": "latest",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^26.4.0",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^1.0.0-rc.5-ab785fc",
@@ -40,6 +41,7 @@
     "http-errors": "^2.0.1",
     "ioredis": "^6.0.0",
     "langchain": "^1.5.10",
+    "morgan": "^1.12.0",
     "pg": "^8.23.0",
     "youtube-transcript": "^1.3.1",
     "zod": "^4.4.3"

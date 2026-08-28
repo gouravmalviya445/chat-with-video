@@ -1,6 +1,7 @@
 import express from "express";
 import { globalErrorHandlerMiddleware } from "@/middleware/errorHandler.middleware";
 import cors from "cors";
+import morgan from "morgan";
 import { env } from "@config/env";
 
 import { auth } from "@/lib/auth";
@@ -19,6 +20,9 @@ app.use(
 // all routes imported here
 import videoRouter from "@/routes/video.routes";
 import { toNodeHandler } from "better-auth/node";
+
+// logger middleware
+app.use(morgan(env?.NODE_ENV === "development" ? "dev" : "combined"))
 
 // better auth routes handler
 app.all("/api/auth/*splat", toNodeHandler(auth));
