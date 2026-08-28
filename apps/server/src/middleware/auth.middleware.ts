@@ -4,9 +4,13 @@ import { fromNodeHeaders } from "better-auth/node";
 import createHttpError from "http-errors";
 import { auth } from "@/lib/auth";
 
-export interface AuthenticatedRequest extends Request {
-  user: typeof auth.$Infer.Session.user;
-  session: typeof auth.$Infer.Session.session;
+declare global {
+  namespace Express {
+    interface Request {
+      user: typeof auth.$Infer.Session.user;
+      session: typeof auth.$Infer.Session.session;
+    }
+  }
 }
 
 /**
@@ -29,8 +33,8 @@ export async function requireAuth(
     }
 
     // attach session and user to request
-    (req as AuthenticatedRequest).user = session.user;
-    (req as AuthenticatedRequest).session = session.session;
+    req.user = session.user;
+    req.session = session.session;
 
     // pass the req to next middleware/controller
     next();
