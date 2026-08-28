@@ -145,8 +145,44 @@ async function deleteVideo(
   }
 }
 
+/**
+ * fetches all videos belongs to the authenticated user
+ */
+async function getUserVideos(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { success, data } = getUserVideosSchema.safeParse(req.query);
+
+    if (!success) {
+      next(createHttpError(400, "Invalid pagination parameters"));
+      return;
+    }
+    
+    // get all user videos
+    const videos = await getAllVideos(
+      req.user.id,
+      data.limit,
+      data.offset
+    );
+    
+    res.status(200).json(
+      new ApiResponse(
+        200,
+        "Videos fetched successfully",
+        videos,
+      )
+    );
+  } catch (error) {
+    next(createHttpError(500, "Error while fetching videos"))
+  }
+}
+
 export {
   createYtVideo,
   getVideo,
-  deleteVideo
+  deleteVideo,
+  getUserVideos
 }
