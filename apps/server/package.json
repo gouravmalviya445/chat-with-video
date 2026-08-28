@@ -17,6 +17,7 @@
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.0",
     "@types/pg": "^8.23.1",
@@ -32,6 +33,7 @@
     "@langchain/community": "^1.1.29",
     "better-auth": "^1.7.2",
     "bullmq": "^6.3.1",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.5-ab785fc",
     "express": "^5.2.1",

@@ -13,6 +13,7 @@ const envSchema = z.object({
   HF_API_KEY: z.string({ message: "HUGGINGFACE_API_KEY is required" }),
   REDIS_HOST: z.string({ message: "REDIS_HOST is required" }),
   REDIS_PORT: z.string().default("6379"),
+  CORS_ORIGIN: z.string().default("http://localhost:3000"),
 })
 
 const {data: env, success, error} = envSchema.safeParse(process.env);

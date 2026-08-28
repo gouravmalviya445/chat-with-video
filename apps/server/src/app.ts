@@ -1,10 +1,20 @@
 import express from "express";
 import { globalErrorHandlerMiddleware } from "@/middleware/errorHandler.middleware";
+import cors from "cors";
+import { env } from "@config/env";
 
 import { auth } from "@/lib/auth";
 
 const app = express();
 
+// cors configuration middleware
+app.use(
+  cors({
+    origin: env?.CORS_ORIGIN ?? "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // Allow credentials (cookies, auth headers etc)
+  })
+);
 
 // all routes imported here
 import videoRouter from "@/routes/video.routes";
