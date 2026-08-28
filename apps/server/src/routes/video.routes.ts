@@ -1,13 +1,15 @@
 import { Router } from "express";
 
 import {
-  createYouTubeVideoController,
-  getVideoController
+  createYtVideo,
+  getVideo
 } from "@/controllers/video.controller";
+
+import { requireAuth } from "@/middleware/auth.middleware";
 
 const router = Router();
 
-router.route("/youtube").post(createYouTubeVideoController);
-router.route("/:id").get(getVideoController);
+router.route("/youtube").post(requireAuth, createYtVideo);
+router.route("/:id").get(requireAuth, getVideo);
 
 export default router;
