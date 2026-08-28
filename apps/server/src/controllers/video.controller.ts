@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { createYouTubeVideo, findVideoById } from "@repository/video.repository";
+import { createYouTubeVideo, deleteVideoById, findVideoById } from "@repository/video.repository";
 import { enqueueVideoIngestion } from "@services/queue.service";
 import { createYouTubeVideoSchema } from "@validators/video.validator";
 
@@ -53,6 +53,7 @@ async function createYtVideo(
     // push job to queue for fetching and processing
     await enqueueVideoIngestion(
       video.id,
+      userId,
       "youtube",
     );
 
@@ -75,7 +76,11 @@ async function createYtVideo(
 /**
  * checks the video status and returns the video metadata
  */
-async function getVideo(req: Request, res: Response, next: NextFunction) {
+async function getVideo(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const videoId = req.params?.id as (string | undefined);
 
@@ -84,8 +89,10 @@ async function getVideo(req: Request, res: Response, next: NextFunction) {
       return;
     }
 
+    const userId = (req as AuthenticatedRequest).user.id;
+
     // check the status of video
-    const video = await findVideoById(videoId);
+    const video = await findVideoById(videoId, userId);
 
     if (!video) {
       next(createHttpError(404, "Video not found"));
@@ -105,7 +112,46 @@ async function getVideo(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+/**
+ * deletes the video belongs to the authenticated user only
+ */
+async function deleteVideo(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const videoId = req.params?.id as (string | undefined);
+
+    if (!videoId) {
+      next(createHttpError(400, "Video ID is required"))
+      return;
+    }
+    const userId = (req as AuthenticatedRequest).user.id;
+
+    // delete the video belongs to the user
+    const deletedVideo = await deleteVideoById(videoId, userId);
+
+    if (!deletedVideo) {
+      next(createHttpError(404, "Video not found"))
+      return;
+    }
+
+    res
+      .status(200)
+      .json(new ApiResponse(
+        200,
+        "Video deleted successfully",
+        null
+      ));
+    return;
+  } catch (error) {
+    next(createHttpError(500, "Failed to delete video"))
+  }
+}
+
 export {
   createYtVideo,
-  getVideo
+  getVideo,
+  deleteVideo
 }
