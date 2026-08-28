@@ -2,12 +2,14 @@ import { videoIngestionQueue } from "@queue/video.queue";
 
 export async function enqueueVideoIngestion(
   videoId: string,
+  userId: string,
   source: "youtube" | "upload",
 ) {
   return videoIngestionQueue.add(
     "process-video",
     {
       videoId,
+      userId,
       source,
     },
     {
