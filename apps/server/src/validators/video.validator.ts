@@ -14,3 +14,19 @@ export const createYouTubeVideoSchema = z.object({
       , "Invalid YouTube video URL"
     )
 });
+
+export const getUserVideosSchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(5)
+    .max(100)
+    .default(10),
+  
+  offset: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(100)
+    .default(0)
+});
