@@ -10,10 +10,11 @@ const worker = new Worker<VideoIngestionJob>(
   "video-ingestion",
 
   async (job) => {
-    const { videoId, source } = job.data;
+    const { videoId, source, userId } = job.data;
+    console.log("userid: ", userId)
 
     // find the video if avalable in database
-    const video = await findVideoById(videoId);
+    const video = await findVideoById(videoId, userId);
 
     if (!video) {
       throw new Error(`Video not found: ${videoId}`);
