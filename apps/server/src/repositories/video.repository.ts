@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
 import { videos } from "@/db/schema";
@@ -27,17 +27,24 @@ export async function createYouTubeVideo(data: {
 }
 
 /**
- * find video by id
- * @param videoId id of video to be fetched
- * @returns video or null
+ * Find a video by ID belonging to a specific user.
+ * @param videoId ID of the video to be fetched
+ * @param userId ID of the authenticated user
+ * @returns video or undefined
  */
 export async function findVideoById(
   videoId: string,
+  userId: string,
 ) {
   const [video] = await db
     .select()
-    .from(videos)
-    .where(eq(videos.id, videoId))
+    .from(videos) 
+    .where(
+      and(
+        eq(videos.id, videoId),
+        eq(videos.userId, userId),
+      ),
+    )
     .limit(1);
 
   return video;
@@ -66,5 +73,27 @@ export async function updateVideoStatus(
     .where(eq(videos.id, videoId))
     .returning();
 
+  return video;
+}
+
+/**
+ * delete video from db only the authenticated user can delete his own video
+ * @param videoId id of video to be deleted
+ * @param userId user id of the video owner
+ * @returns deleted video
+ */
+export async function deleteVideoById(
+  videoId: string,
+  userId: string
+) {
+  const [video] = await db
+    .delete(videos)
+    .where(
+      and(
+        eq(videos.id, videoId),
+        eq(videos.userId, userId),
+      ),
+    )
+    .returning();
   return video;
 }
