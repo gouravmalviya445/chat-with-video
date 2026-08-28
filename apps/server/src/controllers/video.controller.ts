@@ -7,28 +7,36 @@ import { createYouTubeVideoSchema } from "@validators/video.validator";
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
 
+import { AuthenticatedRequest } from "@/middleware/auth.middleware";
+
 
 /**
  * creates a youtube video entry in the database and pushes a job to the queue for fetching and processing the video.
  */
-async function createYouTubeVideoController(
+async function createYtVideo(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-
     // parsed req body
     const parsed = createYouTubeVideoSchema.safeParse(req.body);
 
     // check if parsed body is valid
     if (!parsed.success) {
-      next(createHttpError(400, parsed.error.issues.map((issue) => `${issue.message}`).join("\n")));
+      next(
+        createHttpError(
+          400,
+          parsed.error.issues
+            .map((issue) => `${issue.message}`)
+            .join("\n")
+        )
+      );
       return;
     }
 
-    // Temporary user ID.
-    const userId = "2e8a68f0-9037-4981-a217-211364265757";
+    // get user from the auth middlware
+    const userId = (req as AuthenticatedRequest).user.id;
 
     // store video metadata in db
     const video = await createYouTubeVideo({
@@ -59,15 +67,15 @@ async function createYouTubeVideoController(
         }
       ));
     return;
-  } catch (error: any) {
-    next(createHttpError(500, "Internal server error", error));
+  } catch (error) {
+    next(createHttpError(500, "Internal server error"));
   }
 }
 
 /**
  * checks the video status and returns the video metadata
  */
-async function getVideoController(req: Request, res: Response, next: NextFunction) {
+async function getVideo(req: Request, res: Response, next: NextFunction) {
   try {
     const videoId = req.params?.id as (string | undefined);
 
@@ -92,12 +100,12 @@ async function getVideoController(req: Request, res: Response, next: NextFunctio
         video,
       ));
     return;
-  } catch (error: any) {
+  } catch (error) {
     next(createHttpError(500, "Error while fetching video"));
   }
 }
 
 export {
-  createYouTubeVideoController,
-  getVideoController
+  createYtVideo,
+  getVideo
 }
