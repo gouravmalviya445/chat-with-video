@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import db from "@/db";
 import { videos } from "@/db/schema";
@@ -96,4 +96,25 @@ export async function deleteVideoById(
     )
     .returning();
   return video;
+}
+
+/**
+ * Gets all videos belonging to the authenticated user.
+ * @param userId authenticated user's ID
+ * @param limit number of videos to be fetched
+ * @param offset number of videos to skip
+ * @returns array of videos
+ */
+export async function getAllVideos(
+  userId: string,
+  limit: number = 10,
+  offset: number = 0,
+) {
+  return await db
+    .select()
+    .from(videos)
+    .where(eq(videos.userId, userId))
+    .limit(limit)
+    .offset(offset)
+    .orderBy(desc(videos.createdAt));
 }
