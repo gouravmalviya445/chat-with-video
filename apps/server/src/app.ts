@@ -18,8 +18,9 @@ app.use(
 );
 
 // all routes imported here
-import videoRouter from "@/routes/video.routes";
 import { toNodeHandler } from "better-auth/node";
+import videoRoutes from "@/routes/video.routes";
+import conversationRoutes from "@/routes/conversation.routes";
 
 // logger middleware
 app.use(morgan(env?.NODE_ENV === "development" ? "dev" : "combined"))
@@ -38,8 +39,8 @@ app.get("/api/health", (_, res) => {
 });
 
 // application specific routes
-app.use("/api/videos", videoRouter);
-
+app.use("/api/videos", videoRoutes);
+app.use("/api", conversationRoutes);
 
 // global error handler middleware
 app.use(globalErrorHandlerMiddleware)
