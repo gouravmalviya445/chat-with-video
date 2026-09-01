@@ -8,11 +8,15 @@ import { searchVideoChunks } from "@repository/video-chunk.repository";
  * @param limit limit
  * @returns video chunks
  */
-export async function retrieveRelevantChunks(
-  videoId: string,
-  question: string,
+export async function retrieveRelevantChunks({
+  videoId,
+  question,
   limit = 5,
-) {
+}: {
+  videoId: string;
+  question: string;
+  limit?: number;
+}) {
   const queryEmbedding = await embeddings.embedQuery(question);
 
   if (queryEmbedding.length !== 384) {
@@ -21,9 +25,9 @@ export async function retrieveRelevantChunks(
     );
   }
 
-  return searchVideoChunks(
-    videoId,
-    queryEmbedding,
-    limit,
-  );
+  return searchVideoChunks({
+    videoId: videoId,
+    embedding: queryEmbedding,
+    limit: limit,
+  });
 }
