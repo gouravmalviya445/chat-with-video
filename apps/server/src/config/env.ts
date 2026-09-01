@@ -14,6 +14,7 @@ const envSchema = z.object({
   REDIS_HOST: z.string({ message: "REDIS_HOST is required" }),
   REDIS_PORT: z.string().default("6379"),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
+  GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
 })
 
 const {data: env, success, error} = envSchema.safeParse(process.env);
