@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 
 import { createYouTubeVideo, deleteVideoById, findVideoById, getAllVideos } from "@repository/video.repository";
 import { enqueueVideoIngestion } from "@services/queue.service";
-import { createYouTubeVideoSchema, getUserVideosSchema } from "@validators/video.validator";
+import { createYouTubeVideoSchema, getUserVideosSchema } from "@/validators/video.schema";
 
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
