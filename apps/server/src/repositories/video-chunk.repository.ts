@@ -65,14 +65,18 @@ export async function createVideoChunks(
  * @param limit limit
  * @returns video chunks
  */
-export async function searchVideoChunks(
-    videoId: string,
-    embedding: number[],
-    limit = 5,
-  ) {
+export async function searchVideoChunks({
+  videoId,
+  embedding,
+  limit = 5,
+}: {
+  videoId: string;
+  embedding: number[];
+  limit?: number;
+}) {
   const vector = `[${embedding.join(",")}]`;
 
-  return db.execute(sql`
+  const res = await db.execute(sql`
     SELECT
       id,
       video_id,
@@ -89,4 +93,14 @@ export async function searchVideoChunks(
     ORDER BY embedding <=> ${vector}::vector
     LIMIT ${limit};
   `);
+
+  return res?.rows as unknown as Array<{
+    id: string;
+    videoId: string;
+    content: string;
+    startTime: number;
+    endTime: number;
+    chunkIndex: number;
+    similarity: number;
+  }>;
 }
