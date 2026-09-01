@@ -8,6 +8,14 @@ interface IndexableChunk {
   tokenCount?: number;
 }
 
+/**
+ * Indexes video chunks by creating embeddings for each chunk
+ * and then saving them to the database
+ * 
+ * @param videoId - ID of the video to index
+ * @param chunks - array of chunks to index
+ * @returns array of created video chunks
+ */
 export async function indexVideoChunks(
   videoId: string,
   chunks: IndexableChunk[],
