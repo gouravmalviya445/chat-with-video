@@ -52,8 +52,6 @@ async function sendMessage(
       content: parsed.data.content,
     });
 
-    res.status(200);
-
     // will attach source metadata later.
     pipeUIMessageStreamToResponse({
       response: res,
