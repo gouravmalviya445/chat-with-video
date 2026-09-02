@@ -3,7 +3,7 @@ import createHttpError from "http-errors";
 import { findConversationById } from "@repository/conversation.repository";
 import { createMessageSources } from "@repository/message-source.repository";
 
-import { createMessage } from "@repository/message.repository";
+import { createMessage, createAssistantMessageWithSources } from "@repository/message.repository";
 
 import { retrieveRelevantChunks } from "@services/retrieval.service";
 
@@ -73,21 +73,16 @@ export async function chatWithVideo({
 
     // Persist assistant response after generation finishes
     onEnd: async (text: string) => {
-      const assistantMessage = await createMessage({
+      const videoChunkIds = [
+        ... new Set(chunks.map(chunk => chunk.id))
+      ]
+
+      // create assistant messagee + message sources in a single transaction
+      await createAssistantMessageWithSources({
         conversationId,
-        role: "ASSISTANT",
-        content: text,
-      });
-
-      if (!assistantMessage) {
-        throw createHttpError(500, "Failed to create assistant message");
-      }
-
-      // create message sources for assistant response
-      await createMessageSources(
-        assistantMessage.id,
-        chunks.map((chunk) => chunk.id),
-      );
+        content: text, // text is the final response of llm after streaming
+        videoChunkIds
+      })
     },
   });
 
