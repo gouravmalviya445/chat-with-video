@@ -1,6 +1,7 @@
 import createHttpError from "http-errors";
 
 import { findConversationById } from "@repository/conversation.repository";
+import { createMessageSources } from "@repository/message-source.repository";
 
 import { createMessage } from "@repository/message.repository";
 
@@ -16,7 +17,6 @@ import { streamRagAnswer } from "@ai/llm/generate";
  * @param content - Content of the message
  * @returns 
  */
-
 export async function chatWithVideo({
   userId,
   conversationId,
@@ -73,11 +73,21 @@ export async function chatWithVideo({
 
     // Persist assistant response after generation finishes
     onEnd: async (text: string) => {
-      await createMessage({
+      const assistantMessage = await createMessage({
         conversationId,
         role: "ASSISTANT",
         content: text,
-      })
+      });
+
+      if (!assistantMessage) {
+        throw createHttpError(500, "Failed to create assistant message");
+      }
+
+      // create message sources for assistant response
+      await createMessageSources(
+        assistantMessage.id,
+        chunks.map((chunk) => chunk.id),
+      );
     },
   });
 
