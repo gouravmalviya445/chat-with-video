@@ -103,3 +103,25 @@ export async function deleteConversation(
 
   return conversation;
 }
+
+/**
+ * gets all conversations for a user
+ * 
+ * @param userId - id of the user to get conversations for
+ * @param limit - limit of the number of conversations to return
+ * @param offset - offset of the number of conversations to return
+ * @returns array of conversations that belong to the user
+ */
+export async function getUserConversations(
+  userId: string,
+  limit = 10,
+  offset = 0,
+) {
+  return db
+    .select()
+    .from(conversations)
+    .where(eq(conversations.userId, userId))
+    .orderBy(desc(conversations.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
