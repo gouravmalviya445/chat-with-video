@@ -17,6 +17,11 @@ const videoStatusEnum = pgEnum("video_status", [
   "FAILED",
 ]);
 
+const videoSourceEnum = pgEnum("video_source", [
+  "YOUTUBE",
+  "UPLOAD",
+]);
+
 const videos = pgTable("videos", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -30,6 +35,11 @@ const videos = pgTable("videos", {
   // Video Information
   title: text("title").notNull(),
   description: text("description"),
+
+  // Video source
+  source: videoSourceEnum("source")
+    .notNull(),
+
   youtubeUrl: text("youtube_url"),
   storageUrl: text("storage_url"),
   duration: integer("duration"),
@@ -53,5 +63,6 @@ const videos = pgTable("videos", {
 
 export {
   videoStatusEnum,
+  videoSourceEnum,
   videos
 }
