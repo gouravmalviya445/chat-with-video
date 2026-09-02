@@ -10,6 +10,8 @@ import {
   getUserConversation,
   getUserVideoConversations,
   deleteUserConversation,
+  getConversationMessages,
+  getUserConversationList,
 } from "@services/conversation.service";
 
 import { ApiResponse } from "@utils/ApiResponse";
@@ -126,6 +128,60 @@ async function getConversation(
 }
 
 /**
+ * fetches all conversations of a user
+ */
+async function getConversations(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const {
+      limit = "10",
+      offset = "0",
+    } = req.query as {
+      limit?: string;
+      offset?: string;
+    };
+
+    const parsedLimit = Number(limit);
+    const parsedOffset = Number(offset);
+
+    if (
+      !Number.isInteger(parsedLimit) ||
+      !Number.isInteger(parsedOffset) ||
+      parsedLimit < 1 ||
+      parsedLimit > 100 ||
+      parsedOffset < 0
+    ) {
+      next(
+        createHttpError(
+          400,
+          "Invalid limit or offset",
+        ),
+      );
+      return;
+    }
+
+    const conversations = await getUserConversationList({
+        userId: req.user.id,
+        limit: parsedLimit,
+        offset: parsedOffset,
+      });
+
+    res.status(200).json(
+      new ApiResponse(
+        200,
+        "Conversations fetched successfully",
+        conversations,
+      ),
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
  * deletes the conversation belongs to the user
  */
 async function deleteConversation(
@@ -159,9 +215,52 @@ async function deleteConversation(
   }
 }
 
+/**
+ * Fetches all messages for a specific conversation.
+ */
+async function getMessagesOfConversation(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const conversationId = req.params?.conversationId as (string | undefined);
+
+    if (!conversationId) {
+      next(
+        createHttpError(
+          400,
+          "Conversation ID is required",
+        ),
+      );
+      return;
+    }
+
+    const messages =
+      await getConversationMessages({
+        userId: req.user.id,
+        conversationId,
+      });
+
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          "Messages fetched successfully",
+          messages,
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   createConversation,
   getVideoConversations,
   getConversation,
+  getMessagesOfConversation,
+  getConversations,
   deleteConversation,
 };
