@@ -7,24 +7,28 @@ import {
   getVideoConversations,
   getConversation,
   deleteConversation,
+  getMessagesOfConversation,
+  getConversations
 } from "@/controllers/conversation.controller";
 
 const router = Router();
 
 router
   .route("/videos/:videoId/conversations")
-  .post(requireAuth, createConversation);
-
-router
-  .route("/videos/:videoId/conversations")
+  .post(requireAuth, createConversation)
   .get(requireAuth, getVideoConversations);
 
 router
   .route("/conversations/:conversationId")
-  .get(requireAuth, getConversation);
+  .get(requireAuth, getConversation)
+  .delete(requireAuth, deleteConversation);
 
 router
-  .route("/conversations/:conversationId")
-  .delete(requireAuth, deleteConversation,);
+  .route("/conversations/:conversationId/messages")
+  .get(requireAuth, getMessagesOfConversation)
+
+router
+  .route("/conversations")
+  .get(requireAuth, getConversations)
 
 export default router;
