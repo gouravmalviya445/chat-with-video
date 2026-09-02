@@ -48,3 +48,19 @@ export async function getConversationMessages(
     .where(eq(messages.conversationId, conversationId))
     .orderBy(asc(messages.createdAt));
 }
+
+/**
+ * Retrieves all messages for specific conversation, ordered by creation time
+ * 
+ * @param conversationId - ID of the conversation
+ * @returns array of messages in the conversation
+ */
+export async function findMessagesByConversationId(
+  conversationId: string,
+) {
+  return db
+    .select()
+    .from(messages)
+    .where(eq(messages.conversationId, conversationId))
+    .orderBy(asc(messages.createdAt));
+}
