@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  createVideoUpload,
   createYtVideo,
   deleteVideo,
   getUserVideos,
@@ -11,9 +12,21 @@ import { requireAuth } from "@/middleware/auth.middleware";
 
 const router = Router();
 
-router.route("/youtube").post(requireAuth, createYtVideo);
-router.route("/:id").get(requireAuth, getVideo);
-router.route("/:id").delete(requireAuth, deleteVideo);
-router.route("/").get(requireAuth, getUserVideos);
+router
+  .route("/youtube")
+  .post(requireAuth, createYtVideo);
+
+router
+  .route("/upload")
+  .post(requireAuth, createVideoUpload);
+
+router
+  .route("/:id")
+  .get(requireAuth, getVideo)
+  .delete(requireAuth, deleteVideo);
+
+router
+  .route("/")
+  .get(requireAuth, getUserVideos);
 
 export default router;
