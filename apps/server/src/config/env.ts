@@ -15,6 +15,9 @@ const envSchema = z.object({
   REDIS_PORT: z.string().default("6379"),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+  SUPABASE_URL: z.url({ message: "SUPABASE_URL is required" }),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_STORAGE_BUCKET: z.string().min(1),
 })
 
 const {data: env, success, error} = envSchema.safeParse(process.env);

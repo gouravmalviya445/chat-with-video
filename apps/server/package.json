@@ -33,6 +33,7 @@
     "@better-auth/drizzle-adapter": "^1.7.2",
     "@huggingface/inference": "^4.13.28",
     "@langchain/community": "^1.1.29",
+    "@supabase/supabase-js": "^2.114.0",
     "ai": "^7.0.85",
     "better-auth": "^1.7.2",
     "bullmq": "^6.3.1",
