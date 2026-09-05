@@ -1,11 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { createYouTubeVideo, deleteVideoById, findVideoById, getAllVideos } from "@repository/video.repository";
+import { createVideo, createYouTubeVideo, deleteVideoById, findVideoById, getAllVideos } from "@repository/video.repository";
 import { enqueueVideoIngestion } from "@services/queue.service";
-import { createYouTubeVideoSchema, getUserVideosSchema } from "@/validators/video.schema";
+import { createVideoUploadSchema, createYouTubeVideoSchema, getUserVideosSchema } from "@/validators/video.schema";
 
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
+import { createVideoUploadUrl, getVideoStoragePath } from "@/services/storage.service";
 
 
 /**
@@ -65,6 +66,72 @@ async function createYtVideo(
     return;
   } catch (error) {
     next(createHttpError(500, "Internal server error"));
+  }
+}
+
+/**
+ * Creates an upload URL for a video file.
+ */
+async function createVideoUpload(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const parsed = createVideoUploadSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      next(
+        createHttpError(
+          400,
+          parsed.error.issues
+            .map((issue) => `${issue.message}`)
+            .join("\n")
+        )
+      );
+      return;
+    }
+
+    // Generate ID first because we need it for the storage path.
+    const videoId = crypto.randomUUID();
+
+    // get storage path for the video 
+    const storagePath = getVideoStoragePath(
+      req.user.id,
+      videoId
+    );
+
+    // store uploaded video metadata in db
+    const video = await createVideo({
+      id: videoId,
+      userId: req.user.id,
+      title: parsed.data.title,
+      storageUrl: storagePath,
+      source: "UPLOAD",
+      status: "PENDING",
+    })
+
+    if (!video) {
+      next(createHttpError(500, "Failed to create video"));
+      return;
+    }
+
+    // generate pre-signed url for uploading video
+    const upload = await createVideoUploadUrl(storagePath);
+
+    res
+      .status(201)
+      .json(new ApiResponse(
+        201,
+        "Video upload initialized",
+        {
+          videoId: videoId,
+          path: upload.path,
+          token: upload.token
+        }
+      ))
+  } catch (error) {
+    next(error);
   }
 }
 
@@ -182,6 +249,7 @@ async function getUserVideos(
 
 export {
   createYtVideo,
+  createVideoUpload,
   getVideo,
   deleteVideo,
   getUserVideos
