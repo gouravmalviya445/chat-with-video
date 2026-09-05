@@ -6,7 +6,7 @@ import { createVideoUploadSchema, createYouTubeVideoSchema, getUserVideosSchema 
 
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
-import { createVideoUploadUrl, getVideoStoragePath } from "@/services/storage.service";
+import { createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
 
 
 /**
@@ -71,6 +71,8 @@ async function createYtVideo(
 
 /**
  * Creates an upload URL for a video file.
+ * so the client can upload directly to the supabase storage using 
+ * upload URL
  */
 async function createVideoUpload(
   req: Request,
@@ -94,17 +96,24 @@ async function createVideoUpload(
 
     // Generate ID first because we need it for the storage path.
     const videoId = crypto.randomUUID();
+    
+    const userId = req.user.id;
 
     // get storage path for the video 
     const storagePath = getVideoStoragePath(
-      req.user.id,
+      userId,
       videoId
+    );
+
+    // Generate signed upload credentials.
+    const upload = await createVideoUploadUrl(
+        storagePath,
     );
 
     // store uploaded video metadata in db
     const video = await createVideo({
       id: videoId,
-      userId: req.user.id,
+      userId,
       title: parsed.data.title,
       storageUrl: storagePath,
       source: "UPLOAD",
@@ -116,20 +125,94 @@ async function createVideoUpload(
       return;
     }
 
-    // generate pre-signed url for uploading video
-    const upload = await createVideoUploadUrl(storagePath);
-
     res
       .status(201)
       .json(new ApiResponse(
         201,
         "Video upload initialized",
         {
-          videoId: videoId,
+          videoId: video.id,
           path: upload.path,
           token: upload.token
         }
       ))
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Confirms that an uploaded video exists in storage
+ * and queues it for background processing.
+ */
+async function completeVideoUpload(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const videoId = req.params?.id as string | undefined;
+
+    if (!videoId) {
+      next(createHttpError(400, "Video ID is required"));
+      return;
+    }
+
+    const userId = req.user.id;
+
+    // Verify that the video belongs to the authenticated user.
+    const video = await findVideoById(
+      videoId,
+      userId
+    );
+
+    if (!video) {
+      next(createHttpError(404, "Video not found"));
+      return;
+    }
+
+    // This endpoint is only valid for uploaded videos.
+    if (video.source !== "UPLOAD") {
+      next(createHttpError(400, `Video is not an UPLOAD type`));
+      return;
+    }
+
+    if (!video.storageUrl) {
+      next(createHttpError(500, "Video storage path is missing"));
+      return;
+    }
+
+    // Prevent accidentally completing an already processed/processing video.
+    if (video.status !== "PENDING") {
+      next(createHttpError(409, `Video cannot be completed from ${video.status} status`));
+      return;
+    }
+
+    // Verify that the actual object exists in Supabase Storage.
+    const exists = await videoObjectExists(video.storageUrl);
+
+    if (!exists) {
+      next(createHttpError(400, "Video file has not been uploaded yet"));
+      return;
+    }
+
+    // Only enqueue after the file has been confirmed to exist.
+    await enqueueVideoIngestion(
+      video.id,
+      userId,
+      "upload"
+    );
+
+    res.status(202).json(
+      new ApiResponse(
+        202,
+        "Video upload completed and processing started",
+        {
+          id: video.id,
+          status: video.status,
+        },
+      ),
+    );
   } catch (error) {
     next(error);
   }
@@ -250,6 +333,7 @@ async function getUserVideos(
 export {
   createYtVideo,
   createVideoUpload,
+  completeVideoUpload,
   getVideo,
   deleteVideo,
   getUserVideos
