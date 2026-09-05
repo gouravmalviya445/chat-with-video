@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  completeVideoUpload,
   createVideoUpload,
   createYtVideo,
   deleteVideo,
@@ -19,6 +20,10 @@ router
 router
   .route("/upload")
   .post(requireAuth, createVideoUpload);
+
+router
+  .route("/:id/upload-complete")
+  .post(requireAuth, completeVideoUpload);
 
 router
   .route("/:id")
