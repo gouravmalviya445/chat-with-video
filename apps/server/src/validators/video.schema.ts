@@ -30,3 +30,11 @@ export const getUserVideosSchema = z.object({
     .max(100)
     .default(0)
 });
+
+export const createVideoUploadSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Video title must be at least 3 characters long.")
+    .max(200, "Video title cannot exceed 200 characters."),
+});
