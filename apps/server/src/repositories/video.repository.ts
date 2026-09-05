@@ -5,7 +5,7 @@ import { videos } from "@/db/schema";
 
 /**
  * create youtube video in db
- * @param data video data to be inserted
+ * @param data - userId of video owner, title of video, youtube url of video
  * @returns created video
  */
 export async function createYouTubeVideo(data: {
@@ -18,8 +18,37 @@ export async function createYouTubeVideo(data: {
     .values({
       userId: data.userId,
       title: data.title,
+      source: "YOUTUBE",
       youtubeUrl: data.youtubeUrl,
       status: "PENDING",
+    })
+    .returning();
+
+  return video;
+}
+
+/**
+ * create video uploaded by the user in db
+ * @param data - id of video , userId of video owner, title of video, source of video, storage url of video, status of video
+ * @returns created video
+ */
+export async function createVideo(data: {
+  id: string;
+  userId: string;
+  title: string;
+  storageUrl: string;
+  source: "UPLOAD" | "YOUTUBE",
+  status: "PENDING" | "PROCESSING" | "READY" | "FAILED",
+}) {
+  const [video] = await db
+    .insert(videos)
+    .values({
+      id: data.id,
+      userId: data.userId,
+      title: data.title,
+      storageUrl: data.storageUrl,
+      source: data.source,
+      status: data.status
     })
     .returning();
 
@@ -118,3 +147,4 @@ export async function getAllVideos(
     .offset(offset)
     .orderBy(desc(videos.createdAt));
 }
+
