@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase";
 import { env } from "@/config/env";
 import createHttpError from "http-errors";
 
+const BUCKET_NAME = env?.SUPABASE_STORAGE_BUCKET!;
+
 /**
  * Creates a signed URL for uploading a video file to Supabase Storage.
  * 
@@ -12,7 +14,7 @@ export async function createVideoUploadUrl(
   path: string,
 ) {
   const { data, error } = await supabase.storage
-    .from(env?.SUPABASE_STORAGE_BUCKET!)
+    .from(BUCKET_NAME)
     .createSignedUploadUrl(path);
 
   if (error) {
@@ -23,6 +25,49 @@ export async function createVideoUploadUrl(
     path,
     token: data.token,
   };
+}
+
+/**
+ * Checks whether a video object exists in Supabase Storage.
+ *
+ * This only checks object metadata/listing and does not download
+ * the actual video file.
+ */
+export async function videoObjectExists(
+  path: string,
+) {
+  const lastSlashIndex = path.lastIndexOf("/");
+
+  // extract folder 
+  const folder =
+    lastSlashIndex === -1
+      ? ""
+      : path.slice(0, lastSlashIndex);
+
+  // extract file name
+  const fileName =
+    lastSlashIndex === -1
+      ? path
+      : path.slice(lastSlashIndex + 1);
+
+  // get file from supabase
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .list(folder, {
+      search: fileName,
+      limit: 1,
+    });
+
+  if (error) {
+    throw createHttpError(
+      500,
+      `Failed to verify uploaded video: ${error.message}`,
+    );
+  }
+
+  return data.some(
+    (file) => file.name === fileName,
+  );
 }
 
 /**
