@@ -20,38 +20,11 @@ interface SplitAudioOptions {
 }
 
 /**
- * Extract audio from video file using ffmpeg
- * @param videoPath - Path to the video file
- * @param audioPath - Path to store the extracted audio
+ * Get the duration of a video/media file using ffprobe
+ * @param mediaPath - Path to the video or media file
+ * @returns The duration of the media file in seconds
  */
-async function extractAudio(
-  videoPath: string,
-  audioPath: string,
-): Promise<void> {
-  await execFileAsync("ffmpeg", [
-    "-i",
-    videoPath,
-
-    // Convert to a Whisper-friendly format.
-    "-vn",
-    "-ac",
-    "1",
-    "-ar",
-    "16000",
-    "-c:a",
-    "pcm_s16le",
-
-    "-y",
-    audioPath,
-  ]);
-}
-
-/**
- * Get the duration of an audio file using ffprobe
- * @param audioPath - Path to the audio file
- * @returns The duration of the audio file in seconds
- */
-async function getAudioDuration(audioPath: string): Promise<number> {
+async function getMediaDuration(mediaPath: string): Promise<number> {
   const { stdout } = await execFileAsync("ffprobe", [
     "-v",
     "error",
@@ -59,28 +32,27 @@ async function getAudioDuration(audioPath: string): Promise<number> {
     "format=duration",
     "-of",
     "default=noprint_wrappers=1:nokey=1",
-    audioPath,
+    mediaPath,
   ]);
 
   const duration = Number.parseFloat(stdout.trim());
 
   if (!Number.isFinite(duration)) {
-    throw new Error("Unable to determine audio duration");
+    throw new Error("Unable to determine media duration");
   }
 
   return duration;
 }
 
-
 /**
- * Split audio into chunks of 10 minutes with 3 seconds overlap
- * @param audioPath - Path to the audio file
- * @param duration - Duration of the audio file in seconds
- * @param options - Options for splitting the audio
+ * Extract audio chunks directly from a video file in 10-minute segments with 3-second overlap
+ * @param videoPath - Path to the video file
+ * @param duration - Duration of the video file in seconds
+ * @param options - Options for splitting the audio chunks
  * @returns Array of AudioChunk objects
  */
-async function splitAudio(
-  audioPath: string,
+async function extractAudioChunksFromVideo(
+  videoPath: string,
   duration: number,
   options: SplitAudioOptions,
 ): Promise<AudioChunk[]> {
@@ -88,7 +60,7 @@ async function splitAudio(
     recursive: true,
   });
 
-  const chunks: AudioChunk[] = [];
+  const audioChunks: AudioChunk[] = [];
 
   let startTime = 0;
   let index = 0;
@@ -111,11 +83,13 @@ async function splitAudio(
       String(startTime),
 
       "-i",
-      audioPath,
+      videoPath,
 
       "-t",
       String(chunkDuration),
 
+      // Disable video stream and convert audio to transcription model format
+      "-vn",
       "-ac",
       "1",
       "-ar",
@@ -127,7 +101,7 @@ async function splitAudio(
       outputPath,
     ]);
 
-    chunks.push({
+    audioChunks.push({
       filePath: outputPath,
       startTime,
       duration: chunkDuration,
@@ -142,11 +116,11 @@ async function splitAudio(
     index++;
   }
 
-  return chunks;
+  return audioChunks;
 }
 
 /**
- * Prepare audio chunks for processing by extracting audio from video and splitting it into chunks
+ * Prepare audio chunks for processing by extracting audio chunks directly from the video file
  * @param videoPath - Path to the video file
  * @param outputDir - Directory to store the audio chunks
  * @returns Array of AudioChunk objects
@@ -155,23 +129,19 @@ export async function prepareAudioChunks(
   videoPath: string,
   outputDir: string,
 ): Promise<AudioChunk[]> {
-  const audioPath = path.join(outputDir, "audio.wav");
-
   await fs.mkdir(outputDir, {
     recursive: true,
   });
 
-  await extractAudio(videoPath, audioPath);
+  const duration = await getMediaDuration(videoPath);
 
-  const duration = await getAudioDuration(audioPath);
-
-  const chunks = await splitAudio(
-    audioPath,
+  const audioChunks = await extractAudioChunksFromVideo(
+    videoPath,
     duration,
     {
       outputDir,
     },
   );
 
-  return chunks;
+  return audioChunks;
 }
