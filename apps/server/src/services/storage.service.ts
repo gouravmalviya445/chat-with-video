@@ -83,3 +83,33 @@ export function getVideoStoragePath(
 ) {
   return `videos/${userId}/${videoId}/original.mp4`;
 }
+
+/**
+ * Creates a signed URL for accessing a video file from Supabase Storage.
+ * 
+ * @param storagePath - The storage path of the video file
+ * @returns The signed URL for accessing the video file
+ */
+export async function createVideoSignedUrl(
+  storagePath: string
+): Promise<string> {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(
+      storagePath,
+      60 * 60 // 1 hour expiry
+    );
+
+  if (error) {
+    throw createHttpError(500, `Failed to create signed URL: ${error.message}`);
+  }
+  
+  if (!data?.signedUrl) {
+    throw createHttpError(
+      500,
+      "Supabase did not return a signed video URL",
+    );
+  }
+  
+  return data.signedUrl;
+}
