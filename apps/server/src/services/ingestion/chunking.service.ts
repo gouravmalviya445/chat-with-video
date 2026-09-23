@@ -6,6 +6,11 @@ export interface VideoChunkInput {
   endTime: number;
 }
 
+/**
+ * Creates chunks from transcript segments
+ * @param segments transcript segments with timestamps
+ * @returns array of chunks with start and end timestamps
+ */
 export function createChunks(
   segments: TranscriptSegment[],
 ): VideoChunkInput[] {
