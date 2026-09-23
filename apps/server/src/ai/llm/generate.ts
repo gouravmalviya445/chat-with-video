@@ -8,6 +8,8 @@ import { buildRagPrompt } from "./prompts";
  * 
  * @param question - The question user ask
  * @param context - The context of the video
+ * @param onEnd callback function
+ * @returns StreamTextResult
  */
 export function streamRagAnswer({
   question,
