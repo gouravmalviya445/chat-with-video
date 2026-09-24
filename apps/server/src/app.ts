@@ -11,8 +11,11 @@ const app = express();
 // cors configuration middleware
 app.use(
   cors({
-    origin: env?.CORS_ORIGIN ?? "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [
+      "http://localhost:3000",
+      ...(env?.CORS_ORIGIN ? [env.CORS_ORIGIN] : []),
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true, // Allow credentials (cookies, auth headers etc)
   })
 );
