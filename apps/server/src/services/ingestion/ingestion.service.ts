@@ -109,7 +109,6 @@ export async function ingestUploadedVideo(
 
     // step 6 -> generate embeddings of chunks and store it in DB
     const indexedChunks = await indexVideoChunks(videoId, chunks);
-    console.log("indxed chunk", indexedChunks);
 
     // step 7 -> return number of audio chunks, transcript segments and chunks
     return {
