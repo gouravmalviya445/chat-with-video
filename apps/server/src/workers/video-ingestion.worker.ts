@@ -4,14 +4,13 @@ import redis from "@/config/redis";
 import type { VideoIngestionJob } from "@/queue/types";
 
 import { findVideoById, updateVideoStatus } from "@repository/video.repository";
-import { ingestYouTubeVideo } from "@/services/ingestion/ingestion.service";
+import { ingestUploadedVideo, ingestYouTubeVideo } from "@/services/ingestion/ingestion.service";
 
 const worker = new Worker<VideoIngestionJob>(
   "video-ingestion",
 
   async (job) => {
     const { videoId, source, userId } = job.data;
-    console.log("userid: ", userId)
 
     // find the video if avalable in database
     const video = await findVideoById(videoId, userId);
@@ -42,16 +41,33 @@ const worker = new Worker<VideoIngestionJob>(
         );
       }
 
+      if (source === "upload") {
+        if (!video.storageUrl) {
+          throw new Error("Uploaded video storage path is missing");
+        }
+
+        // handle youtube video ingestion
+        await ingestUploadedVideo(
+          video.id,
+          video.storageUrl
+        );
+      }
+
       // update video status to ready
       await updateVideoStatus(
         videoId,
         "READY",
       );
     } catch (error) {
-      await updateVideoStatus(
-        videoId,
-        "FAILED",
-      );
+      const isFinalAttempt =
+        job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
+      
+      if (isFinalAttempt) {
+        await updateVideoStatus(
+          videoId,
+          "FAILED",
+        );
+      }
 
       throw error;
     }
