@@ -11,6 +11,9 @@ import { sendMessageSchema } from "@/validators/chat.schema";
 
 import { pipeUIMessageStreamToResponse, toUIMessageStream } from "ai";
 
+/**
+ * Chat with video via RAG and stream the response to the client using ai SDK
+ */
 async function sendMessage(
   req: Request,
   res: Response,
