@@ -1,6 +1,6 @@
 import db from "@db";
 import { videoChunks } from "@db/schema";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 /**
  * insert video chunk
@@ -52,10 +52,22 @@ export async function createVideoChunks(
     return [];
   }
 
-  return db
-    .insert(videoChunks)
-    .values(chunks)
-    .returning();
+  const videoId = chunks[0]?.videoId;
+
+  if (!videoId) {
+    throw new Error("videoId is required");
+  }
+
+  return db.transaction(async (tx) => {
+    await tx
+      .delete(videoChunks)
+      .where(eq(videoChunks.videoId, videoId));
+
+    return tx
+      .insert(videoChunks)
+      .values(chunks)
+      .returning();
+  });
 }
 
 /**
