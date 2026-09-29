@@ -18,14 +18,13 @@ const worker = new Worker<VideoIngestionJob>(
     if (!video) {
       throw new Error(`Video not found: ${videoId}`);
     }
-
-    // update video status to processing
-    await updateVideoStatus(
-      videoId,
-      "PROCESSING"
-    );
-
+    
     try {
+      // update video status to processing
+      await updateVideoStatus(
+        videoId,
+        "PROCESSING"
+      );
 
       if (source === "youtube") {
         if (!video.youtubeUrl) {
@@ -46,7 +45,7 @@ const worker = new Worker<VideoIngestionJob>(
           throw new Error("Uploaded video storage path is missing");
         }
 
-        // handle youtube video ingestion
+        // handle upload video ingestion
         await ingestUploadedVideo(
           video.id,
           video.storageUrl
