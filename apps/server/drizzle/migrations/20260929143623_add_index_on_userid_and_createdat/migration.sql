@@ -1,0 +1,1 @@
+CREATE INDEX "videos_user_created_at_idx" ON "videos" ("user_id","created_at");
