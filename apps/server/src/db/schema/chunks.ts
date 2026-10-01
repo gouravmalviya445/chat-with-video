@@ -34,7 +34,7 @@ const videoChunks = pgTable("video_chunks", {
   tokenCount: integer("token_count"),
 
   embedding: vector("embedding", {
-    dimensions: 384,
+    dimensions: 768,
   }),
 
   createdAt: timestamp("created_at", {
