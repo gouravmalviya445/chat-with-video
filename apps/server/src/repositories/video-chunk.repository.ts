@@ -91,11 +91,11 @@ export async function searchVideoChunks({
   const res = await db.execute(sql`
     SELECT
       id,
-      video_id,
+      video_id AS "videoId",
       content,
-      start_time,
-      end_time,
-      chunk_index,
+      start_time AS "startTime",
+      end_time AS "endTime",
+      chunk_index AS "chunkIndex",
       1 - (
         embedding <=> ${vector}::vector
       ) AS similarity
