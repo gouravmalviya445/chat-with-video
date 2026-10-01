@@ -7,6 +7,7 @@ import { createMessage, createAssistantMessageWithSources } from "@repository/me
 import { retrieveRelevantChunks } from "@services/retrieval.service";
 
 import { streamRagAnswer } from "@ai/llm/generate";
+import { RETRIVAL_TOP_K } from "@/constants";
 
 /**
  * Sends a message to the AI assistant with the given conversation and content.
@@ -46,7 +47,7 @@ export async function chatWithVideo({
   const chunks = await retrieveRelevantChunks({
     videoId: conversation.videoId,
     question: content,
-    limit: 5,
+    limit: RETRIVAL_TOP_K,
   });
 
   // 4. Build RAG context

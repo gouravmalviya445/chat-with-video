@@ -1,3 +1,4 @@
+import { VECTOR_DIMENSIONS } from "@/constants";
 import { embeddings } from "@ai/embeddings/embeddings";
 import { searchVideoChunks } from "@repository/video-chunk.repository";
 
@@ -19,9 +20,9 @@ export async function retrieveRelevantChunks({
 }) {
   const queryEmbedding = await embeddings.embedQuery(question);
 
-  if (queryEmbedding.length !== 384) {
+  if (queryEmbedding.length !== VECTOR_DIMENSIONS) {
     throw new Error(
-      `Invalid query embedding dimensions: expected 384, got ${queryEmbedding.length}`,
+      `Invalid query embedding dimensions: expected ${VECTOR_DIMENSIONS}, got ${queryEmbedding.length}`,
     );
   }
 

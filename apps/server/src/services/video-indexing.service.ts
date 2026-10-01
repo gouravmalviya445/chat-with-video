@@ -1,3 +1,4 @@
+import { VECTOR_DIMENSIONS } from "@/constants";
 import { embeddings } from "@ai/embeddings/embeddings";
 import { createVideoChunks } from "@repository/video-chunk.repository";
 
@@ -39,9 +40,9 @@ export async function indexVideoChunks(
 
   // check if embedding dimensions are same as expected
   for (const vector of vectors) {
-    if (vector.length !== 384) {
+    if (vector.length !== VECTOR_DIMENSIONS) {
       throw new Error(
-        `Invalid embedding dimensions: expected 384, got ${vector.length}`,
+        `Invalid embedding dimensions: expected ${VECTOR_DIMENSIONS}, got ${vector.length}`,
       );
     }
   }
