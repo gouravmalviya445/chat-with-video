@@ -1,9 +1,11 @@
 import { env } from "@/config/env";
-import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+import { EMBEDDING_MODEL, VECTOR_DIMENSIONS } from "@/constants";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 
-const embeddings = new HuggingFaceInferenceEmbeddings({
-  model: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-  apiKey: env?.HF_API_KEY
-})
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  model: EMBEDDING_MODEL,
+  outputDimensionality: VECTOR_DIMENSIONS,
+  apiKey: env?.GOOGLE_GENERATIVE_AI_API_KEY
+});
 
 export { embeddings }
