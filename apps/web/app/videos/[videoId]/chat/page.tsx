@@ -7,8 +7,8 @@ import { VideoPlayer } from "@/components/chat/VideoPlayer";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { ProcessingState } from "@/components/video/ProcessingState";
 import { getVideo, Video } from "@/lib/api";
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
-import { buttonVariants } from "@/components/ui";
+import { ArrowLeft, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui";
 
 interface VideoChatPageProps {
   params: Promise<{
@@ -24,6 +24,7 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+  const [isVideoVisible, setIsVideoVisible] = useState(true);
 
   const fetchVideoDetails = async () => {
     try {
@@ -43,6 +44,10 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
   }, [videoId]);
 
   const handleSeek = (seconds: number) => {
+    // If hidden, auto-reveal video so the user can watch the referenced timestamp
+    if (!isVideoVisible) {
+      setIsVideoVisible(true);
+    }
     setSeekTime(seconds);
   };
 
@@ -51,8 +56,8 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
       <AppHeader />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
-        {/* Back Navigation Bar */}
-        <div className="mb-4">
+        {/* Navigation & Controls Bar */}
+        <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
           <Link
             href="/videos"
             className={buttonVariants({ variant: "secondary", size: "sm" })}
@@ -60,6 +65,24 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
             <ArrowLeft className="w-3.5 h-3.5 text-neutral-900" />
             <span>Back to videos</span>
           </Link>
+
+          {video && video.status === "READY" && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsVideoVisible((prev) => !prev)}
+              leftIcon={
+                isVideoVisible ? (
+                  <EyeOff className="w-3.5 h-3.5 text-neutral-700" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5 text-neutral-700" />
+                )
+              }
+              title={isVideoVisible ? "Hide video to focus on chat" : "Show video player"}
+            >
+              {isVideoVisible ? "Hide Video" : "Show Video"}
+            </Button>
+          )}
         </div>
 
         {/* Loading State */}
@@ -95,15 +118,23 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
             onStatusUpdate={(updated) => setVideo(updated)}
           />
         ) : (
-          /* Main 2-Column Responsive Layout */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column: Video Player & Info */}
-            <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4">
-              <VideoPlayer video={video} seekTime={seekTime} />
-            </div>
+          /* Main Responsive Layout */
+          <div
+            className={
+              isVideoVisible
+                ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+                : "max-w-3xl mx-auto w-full transition-all duration-200"
+            }
+          >
+            {/* Left Column: Video Player & Info (Hidden when user toggles video off) */}
+            {isVideoVisible && (
+              <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4 animate-in fade-in duration-200">
+                <VideoPlayer video={video} seekTime={seekTime} />
+              </div>
+            )}
 
-            {/* Right Column: Chat Window */}
-            <div className="lg:col-span-6 xl:col-span-5">
+            {/* Right Column: Chat Window (Expands to full width when video is hidden) */}
+            <div className={isVideoVisible ? "lg:col-span-6 xl:col-span-5" : "w-full"}>
               <ChatWindow videoId={video.id} onSeek={handleSeek} />
             </div>
           </div>
