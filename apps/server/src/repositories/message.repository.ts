@@ -58,11 +58,7 @@ export async function getConversationMessages(
 export async function findMessagesByConversationId(
   conversationId: string,
 ) {
-  return db
-    .select()
-    .from(messages)
-    .where(eq(messages.conversationId, conversationId))
-    .orderBy(asc(messages.createdAt));
+  return getConversationMessages(conversationId)
 }
 
 /**
