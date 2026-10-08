@@ -10,6 +10,8 @@ import { getVideo, Video } from "@/lib/api";
 import { ArrowLeft, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui";
 
+type VideoSize = "small" | "medium" | "large";
+
 interface VideoChatPageProps {
   params: Promise<{
     videoId: string;
@@ -25,6 +27,7 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [seekTime, setSeekTime] = useState<number | null>(null);
   const [isVideoVisible, setIsVideoVisible] = useState(true);
+  const [videoSize, setVideoSize] = useState<VideoSize>("medium");
 
   const fetchVideoDetails = async () => {
     try {
@@ -51,6 +54,18 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
     setSeekTime(seconds);
   };
 
+  const videoSpanClass = {
+    small: "lg:col-span-5 xl:col-span-4",
+    medium: "lg:col-span-6 xl:col-span-7",
+    large: "lg:col-span-8 xl:col-span-8",
+  }[videoSize];
+
+  const chatSpanClass = {
+    small: "lg:col-span-7 xl:col-span-8",
+    medium: "lg:col-span-6 xl:col-span-5",
+    large: "lg:col-span-4 xl:col-span-4",
+  }[videoSize];
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader />
@@ -67,21 +82,48 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
           </Link>
 
           {video && video.status === "READY" && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsVideoVisible((prev) => !prev)}
-              leftIcon={
-                isVideoVisible ? (
-                  <EyeOff className="w-3.5 h-3.5 text-neutral-700" />
-                ) : (
-                  <Eye className="w-3.5 h-3.5 text-neutral-700" />
-                )
-              }
-              title={isVideoVisible ? "Hide video to focus on chat" : "Show video player"}
-            >
-              {isVideoVisible ? "Hide Video" : "Show Video"}
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Video Box Size Selector */}
+              {isVideoVisible && (
+                <div className="flex items-center sketch-box-sm bg-paper-card p-0.5 gap-0.5">
+                  <span className="text-[11px] font-handwritten font-bold px-2 text-neutral-600 hidden sm:inline">
+                    Video size:
+                  </span>
+                  {(["small", "medium", "large"] as const).map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setVideoSize(size)}
+                      className={`px-2.5 py-1 text-xs rounded transition-all font-semibold capitalize cursor-pointer ${
+                        videoSize === size
+                          ? "bg-marker-yellow text-ink border border-ink shadow-[1px_1px_0px_#1a1a1a] font-bold"
+                          : "text-neutral-600 hover:text-ink hover:bg-neutral-100"
+                      }`}
+                      title={`Set video box size to ${size}`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Hide / Show Video Toggle Button */}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsVideoVisible((prev) => !prev)}
+                leftIcon={
+                  isVideoVisible ? (
+                    <EyeOff className="w-3.5 h-3.5 text-neutral-700" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5 text-neutral-700" />
+                  )
+                }
+                title={isVideoVisible ? "Hide video to focus on chat" : "Show video player"}
+              >
+                {isVideoVisible ? "Hide Video" : "Show Video"}
+              </Button>
+            </div>
           )}
         </div>
 
@@ -122,19 +164,27 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
           <div
             className={
               isVideoVisible
-                ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+                ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start transition-all duration-200"
                 : "max-w-3xl mx-auto w-full transition-all duration-200"
             }
           >
             {/* Left Column: Video Player & Info (Hidden when user toggles video off) */}
             {isVideoVisible && (
-              <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4 animate-in fade-in duration-200">
+              <div
+                className={`${videoSpanClass} flex flex-col gap-4 animate-in fade-in duration-200 transition-all`}
+              >
                 <VideoPlayer video={video} seekTime={seekTime} />
               </div>
             )}
 
-            {/* Right Column: Chat Window (Expands to full width when video is hidden) */}
-            <div className={isVideoVisible ? "lg:col-span-6 xl:col-span-5" : "w-full"}>
+            {/* Right Column: Chat Window (Expands when video is small or hidden) */}
+            <div
+              className={
+                isVideoVisible
+                  ? `${chatSpanClass} transition-all`
+                  : "w-full transition-all"
+              }
+            >
               <ChatWindow videoId={video.id} onSeek={handleSeek} />
             </div>
           </div>
