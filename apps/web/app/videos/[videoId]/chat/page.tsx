@@ -1,0 +1,114 @@
+"use client";
+
+import { useEffect, useState, use } from "react";
+import Link from "next/link";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { VideoPlayer } from "@/components/chat/VideoPlayer";
+import { ChatWindow } from "@/components/chat/ChatWindow";
+import { ProcessingState } from "@/components/video/ProcessingState";
+import { getVideo, Video } from "@/lib/api";
+import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { buttonVariants } from "@/components/ui";
+
+interface VideoChatPageProps {
+  params: Promise<{
+    videoId: string;
+  }>;
+}
+
+export default function VideoChatPage({ params }: VideoChatPageProps) {
+  const resolvedParams = use(params);
+  const videoId = resolvedParams.videoId;
+
+  const [video, setVideo] = useState<Video | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [seekTime, setSeekTime] = useState<number | null>(null);
+
+  const fetchVideoDetails = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getVideo(videoId);
+      setVideo(data);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load video details.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideoDetails();
+  }, [videoId]);
+
+  const handleSeek = (seconds: number) => {
+    setSeekTime(seconds);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <AppHeader />
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
+        {/* Back Navigation Bar */}
+        <div className="mb-4">
+          <Link
+            href="/videos"
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-neutral-900" />
+            <span>Back to videos</span>
+          </Link>
+        </div>
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="sketch-box p-12 text-center my-8 bg-paper-card">
+            <Loader2 className="w-8 h-8 animate-spin text-neutral-900 mx-auto mb-3" />
+            <p className="font-handwritten text-xl font-bold text-neutral-800">
+              Opening video notebook...
+            </p>
+          </div>
+        ) : error || !video ? (
+          /* Error State */
+          <div className="sketch-card p-8 bg-red-50 text-center max-w-md mx-auto my-8">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-3" />
+            <h3 className="font-handwritten text-2xl font-bold text-red-900 mb-2">
+              Video not found
+            </h3>
+            <p className="text-xs text-red-700 mb-4">
+              {error || "We couldn't retrieve the requested video."}
+            </p>
+            <Link
+              href="/videos"
+              className={buttonVariants({ variant: "primary", size: "sm" })}
+            >
+              Return to Video Library
+            </Link>
+          </div>
+        ) : video.status !== "READY" ? (
+          /* Processing State Banner */
+          <ProcessingState
+            videoId={video.id}
+            initialVideo={video}
+            onStatusUpdate={(updated) => setVideo(updated)}
+          />
+        ) : (
+          /* Main 2-Column Responsive Layout */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Video Player & Info */}
+            <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-4">
+              <VideoPlayer video={video} seekTime={seekTime} />
+            </div>
+
+            {/* Right Column: Chat Window */}
+            <div className="lg:col-span-6 xl:col-span-5">
+              <ChatWindow videoId={video.id} onSeek={handleSeek} />
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
