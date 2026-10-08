@@ -25,7 +25,22 @@ export async function chatWithVideo({
   userId: string;
   conversationId: string;
   content: string;
-}) {
+}): Promise<{
+    userMessage: {
+        conversationId: string;
+        content: string;
+        id: string;
+        createdAt: Date;
+        role: "USER" | "ASSISTANT";
+    } | undefined;
+    result: ReturnType<typeof streamRagAnswer>
+    sources: {
+        id: string;
+        content: string;
+        startTime: number;
+        endTime: number;
+    }[];
+}> {
   // 1. Verify conversation ownership
   const conversation = await findConversationById(
     conversationId,
@@ -54,7 +69,7 @@ export async function chatWithVideo({
   const context = chunks
     .map(
       (chunk, index) =>
-        `[Source ${index + 1}]\n${chunk.content}`,
+        `[Source ${index + 1}] (${chunk.startTime} - ${chunk.endTime}):\n${chunk.content}\n`,
     )
     .join("\n\n");
 
@@ -66,6 +81,10 @@ export async function chatWithVideo({
     endTime: chunk.endTime,
   }));
 
+  const videoChunkIds = [
+    ... new Set(chunks.map(chunk => chunk.id))
+  ]
+  
   // 5. Start LLM stream
   const result = streamRagAnswer({
     question: content,
@@ -73,10 +92,6 @@ export async function chatWithVideo({
 
     // Persist assistant response after generation finishes
     onEnd: async (text: string) => {
-      const videoChunkIds = [
-        ... new Set(chunks.map(chunk => chunk.id))
-      ]
-
       // create assistant messagee + message sources in a single transaction
       await createAssistantMessageWithSources({
         conversationId,

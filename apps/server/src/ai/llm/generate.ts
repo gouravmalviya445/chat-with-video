@@ -19,7 +19,7 @@ export function streamRagAnswer({
   question: string;
   context: string;
   onEnd: (text: string) => Promise<void>;
-}) {
+}): ReturnType<typeof streamText> {
   return streamText({
     model: chatModel,
     prompt: buildRagPrompt({
@@ -27,9 +27,7 @@ export function streamRagAnswer({
       context,
     }),
     onEnd: async ({ text }) => {
-      if (onEnd) {
-        await onEnd(text);
-      }
+      await onEnd(text);
     }
   });
 }
