@@ -30,7 +30,7 @@ export function AppHeader() {
         </div>
         <div className="flex flex-col">
           <span className="font-handwritten text-xl font-bold tracking-wide text-neutral-900 leading-none flex items-center gap-1">
-            Chat With Video
+            Video Sensei
             <Sparkles className="w-4 h-4 text-amber-500 inline-block animate-pulse" />
           </span>
           <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-500">
