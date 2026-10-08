@@ -3,11 +3,15 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun run src/index.ts",
+    "server": "bun run src/index.ts",
+    "worker": "bun run src/workers/video-ingestion.worker.ts",
+
+    "dev": "bun run server & bun run worker",
     "start": "bun run dist/index.js",
     "build": "bunx tsc",
+
     "type:check": "bunx tsc --noEmit",
-    "worker": "bun run src/workers/video-ingestion.worker.ts",
+
     "db:push": "bunx drizzle-kit push",
     "db:studio": "bunx drizzle-kit studio",
     "db:generate": "bunx drizzle-kit generate",
