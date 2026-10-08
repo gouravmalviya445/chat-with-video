@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-background: #faf7ee;
+  --color-foreground: #1a1a1a;
+  --color-paper-card: #fffdf8;
+  --color-paper-sticky: #fef9c3;
+  --color-paper-bg: #faf7ee;
+  --color-ink: #1a1a1a;
+  --color-ink-black: #1a1a1a;
+  --color-ink-gray: #4a4a4a;
+  --color-marker-yellow: #fef08a;
+  --color-marker-yellow-dark: #fde047;
+  --color-marker-blue: #bae6fd;
+  --color-marker-pink: #fbcfe8;
+  --color-accent-blue: #2563eb;
+  --color-accent-red: #ef4444;
+
+  /* Elevation / Hard Drop Shadows */
+  --shadow-sketch-xs: 1px 1px 0px #1a1a1a;
+  --shadow-sketch-sm: 2px 2px 0px #1a1a1a;
+  --shadow-sketch: 3px 3px 0px #1a1a1a;
+  --shadow-sketch-md: 4px 4px 0px #1a1a1a;
+  --shadow-sketch-lg: 6px 6px 0px #1a1a1a;
+
+  /* Hand-drawn organic border radiuses */
+  --radius-sketch-card: 255px 25px 225px 20px / 20px 225px 25px 255px;
+  --radius-sketch-card-inner: 225px 18px 255px 15px / 15px 255px 20px 225px;
+  --radius-sketch-box: 255px 18px 225px 15px / 15px 225px 18px 255px;
+  --radius-sketch-box-inner: 225px 15px 255px 18px / 18px 255px 15px 225px;
+  --radius-sketch-box-sm: 180px 12px 160px 10px / 10px 160px 12px 180px;
+  --radius-sketch-box-sm-inner: 160px 10px 180px 12px / 12px 180px 10px 160px;
+  --radius-sketch-button: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-sketch-input: 255px 15px 225px 15px / 15px 225px 15px 255px;
+
+  /* Typography */
+  --font-handwritten: var(--font-handwritten), cursive, sans-serif;
+  --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
+
+  /* Keyframe Animations */
+  --animate-doodle: doodleWiggle 3s ease-in-out infinite;
+
+  @keyframes doodleWiggle {
+    0%, 100% {
+      transform: rotate(-1.5deg);
+    }
+    50% {
+      transform: rotate(1.5deg);
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image: 
+      linear-gradient(90deg, rgba(239, 68, 68, 0.12) 1px, transparent 1px),
+      radial-gradient(#d1d5db 1.2px, transparent 1.2px);
+    background-size: 100% 100%, 24px 24px;
+    background-position: 50px 0, 0 0;
+  }
+}
+
+/* Tailwind Utilities - exposed to Tailwind IntelliSense */
+
+@utility sketch-card {
+  @apply relative bg-paper-card border-[2.5px] border-ink shadow-sketch-md transition-all duration-150;
+  border-radius: var(--radius-sketch-card);
+
+  &::before {
+    content: "";
+    @apply absolute -inset-[3px] border-[1.5px] border-ink pointer-events-none opacity-30 -rotate-[0.4deg];
+    border-radius: var(--radius-sketch-card-inner);
+  }
+
+  &:hover {
+    @apply -translate-y-0.5 rotate-[0.2deg] shadow-sketch-lg;
+  }
+}
+
+@utility sketch-box {
+  @apply relative bg-paper-card border-[2.5px] border-ink shadow-sketch;
+  border-radius: var(--radius-sketch-box);
+
+  &::before {
+    content: "";
+    @apply absolute -inset-[2px] border border-ink pointer-events-none opacity-25 rotate-[0.3deg];
+    border-radius: var(--radius-sketch-box-inner);
+  }
+}
+
+@utility sketch-box-sm {
+  @apply relative bg-paper-card border-2 border-ink shadow-sketch-sm;
+  border-radius: var(--radius-sketch-box-sm);
+
+  &::before {
+    content: "";
+    @apply absolute -inset-[1.5px] border border-ink pointer-events-none opacity-20 -rotate-[0.3deg];
+    border-radius: var(--radius-sketch-box-sm-inner);
+  }
+}
+
+@utility sketch-button {
+  @apply relative inline-flex items-center justify-center font-semibold bg-paper-card border-[2.5px] border-ink shadow-sketch cursor-pointer transition-all duration-100;
+  border-radius: var(--radius-sketch-button);
+
+  &:hover {
+    @apply -translate-x-[1px] -translate-y-[1px] -rotate-[0.5deg] shadow-sketch-md bg-white;
+  }
+
+  &:active {
+    @apply translate-x-[2px] translate-y-[2px] rotate-0 shadow-sketch-xs;
+  }
+}
+
+@utility sketch-button-primary {
+  @apply relative inline-flex items-center justify-center font-bold bg-marker-yellow text-ink border-[2.5px] border-ink shadow-sketch cursor-pointer transition-all duration-100;
+  border-radius: var(--radius-sketch-button);
+
+  &:hover {
+    @apply -translate-x-[1px] -translate-y-[1px] -rotate-[0.5deg] shadow-sketch-md bg-marker-yellow-dark;
+  }
+
+  &:active {
+    @apply translate-x-[2px] translate-y-[2px] rotate-0 shadow-sketch-xs;
+  }
+}
+
+@utility sketch-button-danger {
+  @apply relative inline-flex items-center justify-center font-bold bg-red-100 text-red-900 border-[2.5px] border-ink shadow-sketch cursor-pointer transition-all duration-100;
+  border-radius: var(--radius-sketch-button);
+
+  &:hover {
+    @apply -translate-x-[1px] -translate-y-[1px] -rotate-[0.5deg] shadow-sketch-md bg-red-200 text-red-950;
+  }
+
+  &:active {
+    @apply translate-x-[2px] translate-y-[2px] rotate-0 shadow-sketch-xs;
+  }
+}
+
+@utility sketch-input {
+  @apply bg-white border-[2.5px] border-ink shadow-sketch-sm px-3.5 py-2.5 outline-none transition-all duration-150;
+  border-radius: var(--radius-sketch-input);
+
+  &:focus {
+    @apply shadow-sketch-md border-ink bg-paper-card scale-[1.005];
+  }
+}
+
+@utility marker-highlight {
+  @apply relative inline-block z-1 px-1;
+
+  &::before {
+    content: "";
+    @apply absolute top-[15%] -left-[3px] -right-[3px] bottom-[10%] bg-marker-yellow -z-1 -rotate-[1.5deg] rounded-[4px_14px_6px_16px];
+  }
+}
+
+@utility marker-highlight-blue {
+  &::before {
+    @apply bg-marker-blue rotate-[1deg];
+  }
+}
+
+@utility marker-underline {
+  @apply relative inline-block;
+
+  &::after {
+    content: "";
+    @apply absolute -bottom-[2px] left-0 w-full h-[6px] bg-marker-yellow rounded-[2px] -z-1 -rotate-[0.5deg];
+  }
+}
+
+@utility font-handwritten {
+  font-family: var(--font-handwritten), cursive, sans-serif;
+}
+
+@utility sketchy-edge {
+  filter: url('#sketchy-edge');
+}
+
+/* Custom Scrollbar for notebook feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #faf7ee;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border: 1.5px solid #1a1a1a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
