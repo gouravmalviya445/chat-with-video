@@ -96,7 +96,7 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
                       onClick={() => setVideoSize(size)}
                       className={`px-2.5 py-1 text-xs rounded transition-all font-semibold capitalize cursor-pointer ${
                         videoSize === size
-                          ? "bg-marker-yellow text-ink border border-ink shadow-[1px_1px_0px_#1a1a1a] font-bold"
+                          ? "bg-marker-yellow text-ink border border-ink shadow-xs font-bold"
                           : "text-neutral-600 hover:text-ink hover:bg-neutral-100"
                       }`}
                       title={`Set video box size to ${size}`}

@@ -43,7 +43,7 @@ export function AppHeader() {
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-3 py-1 text-xs font-semibold sketch-box-sm bg-amber-50 text-neutral-800">
             <User className="w-3.5 h-3.5 text-neutral-700" />
-            <span className="truncate max-w-[160px]">
+            <span className="truncate max-w-40">
               {session.user.name || session.user.email}
             </span>
           </div>
