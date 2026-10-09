@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Message, Conversation, getConversationMessages, createConversation, getVideoConversations, API_PREFIX } from "@/lib/api";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 import { Sparkles, Loader2, AlertCircle, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui";
 
@@ -158,7 +159,7 @@ export function ChatWindow({ videoId, onSeek }: ChatWindowProps) {
   }
 
   return (
-    <div className="sketch-card p-4 bg-paper-card flex flex-col h-[580px] relative">
+    <div className="sketch-card p-4 bg-paper-card flex flex-col h-145 relative">
       {/* Header */}
       <div className="pb-3 mb-2 border-b-2 border-dashed border-neutral-300 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -223,9 +224,13 @@ export function ChatWindow({ videoId, onSeek }: ChatWindowProps) {
                 </div>
 
                 <div className="max-w-[88%] text-sm text-neutral-900 leading-relaxed pl-2 border-l-2 border-neutral-900 py-1 bg-amber-50/50 rounded-r-lg">
-                  <div className="whitespace-pre-wrap font-sans">
-                    {streamingText || "Searching video timestamps..."}
-                  </div>
+                  {streamingText ? (
+                    <MarkdownRenderer content={streamingText} />
+                  ) : (
+                    <p className="italic text-neutral-500 font-handwritten">
+                      Searching video timestamps & writing answer...
+                    </p>
+                  )}
                 </div>
               </div>
             )}

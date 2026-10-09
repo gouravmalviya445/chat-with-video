@@ -2,6 +2,7 @@
 
 import { Message } from "@/lib/api";
 import { SourceCitation } from "./SourceCitation";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 import { Sparkles, User } from "lucide-react";
 
 interface ChatMessageProps {
@@ -39,9 +40,7 @@ export function ChatMessage({ message, onSeek }: ChatMessageProps) {
       </div>
 
       <div className="max-w-[95%] sm:max-w-[88%] text-sm text-neutral-900 leading-relaxed pl-2 border-l-2 border-neutral-900 py-1">
-        <div className="whitespace-pre-wrap font-sans text-neutral-900">
-          {message.content}
-        </div>
+        <MarkdownRenderer content={message.content} />
 
         {/* Source Citations if any */}
         {message.sources && message.sources.length > 0 && (
