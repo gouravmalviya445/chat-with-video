@@ -6,7 +6,7 @@ import { createVideoUploadSchema, createYouTubeVideoSchema, getUserVideosSchema 
 
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
-import { createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
+import { createVideoSignedUrl, createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
 
 
 /**
@@ -244,12 +244,24 @@ async function getVideo(
       return;
     }
 
+    // signed url only for uploaded videos
+    let signedVideoURL: string | undefined;
+    if (video.source === "UPLOAD" && video.storageUrl) {
+      signedVideoURL = await createVideoSignedUrl(
+        video.storageUrl,
+        60 * 60 * 24 * 7 // 7 days
+      );
+    }
+
     res
       .status(200)
       .json(new ApiResponse(
         200,
         "Video fetched successfully",
-        video,
+        {
+          ...video,
+          ...(video.source === "UPLOAD" && signedVideoURL ? { signedVideoURL } : {}),
+        },
       ));
     return;
   } catch (error) {
