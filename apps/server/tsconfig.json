@@ -24,5 +24,8 @@
     },
     "module": "ESNext",
     "moduleResolution": "bundler",
+    // bun type issue
+    "declaration": false,
+    "declarationMap": false
   },
 }
