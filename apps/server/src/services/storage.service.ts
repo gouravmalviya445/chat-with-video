@@ -91,13 +91,14 @@ export function getVideoStoragePath(
  * @returns The signed URL for accessing the video file
  */
 export async function createVideoSignedUrl(
-  storagePath: string
+  storagePath: string,
+  expiresIn: number = 3600 // 1 hour by default
 ): Promise<string> {
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
     .createSignedUrl(
       storagePath,
-      60 * 60 // 1 hour expiry
+      expiresIn
     );
 
   if (error) {
