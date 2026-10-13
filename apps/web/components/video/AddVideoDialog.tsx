@@ -33,6 +33,7 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<string>("");
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
 
   if (!isAddVideoOpen) return null;
 
@@ -100,23 +101,30 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
     }
 
     setIsLoading(true);
+    setUploadPercent(0);
     try {
       setUploadProgress("Initializing video upload...");
       const { videoId, path, token } = await createVideoUpload(result.data.title);
 
-      setUploadProgress("Uploading file to storage...");
-      await uploadFileToSupabase(path, token, file);
+      setUploadProgress("Uploading file (0%)...");
+      await uploadFileToSupabase(path, token, file, (percent) => {
+        setUploadPercent(percent);
+        setUploadProgress(`Uploading file (${percent}%)...`);
+      });
 
       setUploadProgress("Completing setup...");
+      setUploadPercent(100);
       await completeVideoUpload(videoId);
 
       setUploadTitle("");
       setFile(null);
       setUploadProgress("");
+      setUploadPercent(null);
       onSuccess?.();
       handleClose();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to upload video.");
+      setUploadPercent(null);
     } finally {
       setIsLoading(false);
     }
@@ -278,7 +286,7 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
 
             <div>
               <label className="block font-handwritten text-sm font-bold text-neutral-800 mb-1">
-                Video File (MP4, WebM)
+                Video File (MP4, MOV, WebM)
               </label>
               <div className="border-2 border-dashed border-neutral-900 rounded-xl bg-amber-50/50 p-6 text-center hover:bg-amber-100/50 transition-colors cursor-pointer relative">
                 <input
@@ -300,7 +308,7 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
                   <div className="flex items-center justify-center gap-2 text-neutral-900">
                     <FileVideo className="w-6 h-6 text-amber-600" />
                     <div className="text-left truncate">
-                      <p className="font-bold text-xs truncate max-w-[240px]">
+                      <p className="font-bold text-xs truncate max-w-60">
                         {file.name}
                       </p>
                       <p className="text-[10px] text-neutral-500 font-mono">
@@ -323,9 +331,24 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
             </div>
 
             {uploadProgress && (
-              <div className="p-2.5 bg-amber-100 border border-neutral-900 rounded-lg text-xs font-semibold text-neutral-800 flex items-center gap-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-900 shrink-0" />
-                <span>{uploadProgress}</span>
+              <div className="p-3 bg-amber-50 border-2 border-neutral-900 rounded-lg text-xs font-semibold text-neutral-800 space-y-2 shadow-[2px_2px_0px_#171717]">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-900 shrink-0" />
+                    <span className="font-handwritten text-sm text-neutral-900 font-bold">{uploadProgress}</span>
+                  </div>
+                  {uploadPercent !== null && (
+                    <span className="font-mono text-xs font-bold text-neutral-900">{uploadPercent}%</span>
+                  )}
+                </div>
+                {uploadPercent !== null && (
+                  <div className="w-full bg-white h-2.5 rounded-full border border-neutral-900 overflow-hidden relative">
+                    <div
+                      className="bg-marker-yellow h-full transition-all duration-150 border-r border-neutral-900"
+                      style={{ width: `${uploadPercent}%` }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
