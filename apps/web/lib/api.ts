@@ -1,4 +1,5 @@
 import { env } from "@/config/env";
+import * as tus from "tus-js-client";
 
 export type VideoStatus = "PENDING" | "PROCESSING" | "READY" | "FAILED";
 export type VideoSource = "YOUTUBE" | "UPLOAD";
@@ -15,6 +16,8 @@ export interface Video {
   status: VideoStatus;
   createdAt: string;
   updatedAt: string;
+  // if source is upload , then this will be the signed url to access the video
+  signedVideoURL?: string;
 }
 
 export interface Conversation {
@@ -127,24 +130,55 @@ export async function createVideoUpload(title: string): Promise<{ videoId: strin
 }
 
 /**
- * Step 2: Upload file binary directly using the upload credentials
+ * Step 2: Upload file binary using TUS resumable upload protocol (with progress callback)
  */
-export async function uploadFileToSupabase(path: string, token: string, file: File): Promise<void> {
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-  const uploadEndpoint = `${supabaseUrl}/storage/v1/object/upload/sign/${path}?token=${token}`;
-
-  const res = await fetch(uploadEndpoint, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type || "video/mp4",
-    },
-    body: file,
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Direct video upload failed: ${text || res.statusText}`);
-  }
+export async function uploadFileToSupabase(
+  path: string,
+  token: string,
+  file: File,
+  onProgress?: (percentage: number) => void
+) {
+  const endpoint = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/upload/resumable`;
+  return new Promise((resolve, reject) => {
+    const upload = new tus.Upload(file, {
+      endpoint,
+      retryDelays: [0, 500, 1000, 2000, 5000],
+      uploadDataDuringCreation: true,  // Required for Supabase signed TUS streams
+      chunkSize: 6 * 1024 * 1024,      // MUST be exactly 6MB
+      headers: {
+        "authorization": `Bearer ${token}`,
+        "x-upsert": "true",
+      },
+      metadata: {
+        bucketName: "video-files",
+        objectName: path,
+        contentType: file.type,
+        cacheControl: '3600',
+      },
+      onProgress: (bytesUploaded, bytesTotal) => {
+        if (bytesTotal) {
+          const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
+          onProgress?.(percentage);
+        }
+      },
+      onSuccess: () => {
+        resolve(undefined);
+      },
+      onError: (error) => {
+        reject(error);
+      },
+    });
+    
+    // Check if there are any previous uploads to continue.
+    return upload.findPreviousUploads().then(function (previousUploads) {
+      // Found previous uploads so we select the first one.
+      if (previousUploads.length) {
+        upload.resumeFromPreviousUpload(previousUploads[0])
+      }
+      // Start the upload
+      upload.start()
+    })
+  })
 }
 
 /**
