@@ -10,28 +10,32 @@ import {
 } from "@/controllers/video.controller";
 
 import { requireAuth } from "@/middleware/auth.middleware";
+import {
+  authenticatedRateLimit,
+  videoIngestionRateLimit,
+} from "@/middleware/rateLimit.middleware";
 
 const router = Router();
 
 router
   .route("/youtube")
-  .post(requireAuth, createYtVideo);
+  .post(requireAuth, authenticatedRateLimit, videoIngestionRateLimit, createYtVideo);
 
 router
   .route("/upload")
-  .post(requireAuth, createVideoUpload);
+  .post(requireAuth, authenticatedRateLimit, videoIngestionRateLimit, createVideoUpload);
 
 router
   .route("/:id/upload-complete")
-  .post(requireAuth, completeVideoUpload);
+  .post(requireAuth, authenticatedRateLimit, videoIngestionRateLimit, completeVideoUpload);
 
 router
   .route("/:id")
-  .get(requireAuth, getVideo)
-  .delete(requireAuth, deleteVideo);
+  .get(requireAuth, authenticatedRateLimit, getVideo)
+  .delete(requireAuth, authenticatedRateLimit, deleteVideo);
 
 router
   .route("/")
-  .get(requireAuth, getUserVideos);
+  .get(requireAuth, authenticatedRateLimit, getUserVideos);
 
 export default router;

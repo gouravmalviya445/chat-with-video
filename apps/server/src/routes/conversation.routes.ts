@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { requireAuth } from "@/middleware/auth.middleware";
+import { authenticatedRateLimit } from "@/middleware/rateLimit.middleware";
 
 import {
   createConversation,
@@ -15,20 +16,20 @@ const router = Router();
 
 router
   .route("/videos/:videoId/conversations")
-  .post(requireAuth, createConversation)
-  .get(requireAuth, getVideoConversations);
+  .post(requireAuth, authenticatedRateLimit, createConversation)
+  .get(requireAuth, authenticatedRateLimit, getVideoConversations);
 
 router
   .route("/conversations/:conversationId")
-  .get(requireAuth, getConversation)
-  .delete(requireAuth, deleteConversation);
+  .get(requireAuth, authenticatedRateLimit, getConversation)
+  .delete(requireAuth, authenticatedRateLimit, deleteConversation);
 
 router
   .route("/conversations/:conversationId/messages")
-  .get(requireAuth, getMessagesOfConversation)
+  .get(requireAuth, authenticatedRateLimit, getMessagesOfConversation)
 
 router
   .route("/conversations")
-  .get(requireAuth, getConversations)
+  .get(requireAuth, authenticatedRateLimit, getConversations)
 
 export default router;
