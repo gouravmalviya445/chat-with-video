@@ -13,6 +13,7 @@ import { findVideoById } from "@/repositories/video.repository";
 import { findMessagesByConversationId } from "@repository/message.repository";
 
 import { findMessageSources } from "@repository/message-source.repository";
+import { cacheKeys, getOrSetCache } from "@/utils/cache";
 
 
 /**
@@ -155,29 +156,19 @@ export async function getConversationMessages({
     );
   }
 
-  const messages = await findMessagesByConversationId(
-    conversationId,
+  return getOrSetCache(
+    cacheKeys.conversationMessages(userId, conversationId),
+    async () => {
+      const messages = await findMessagesByConversationId(conversationId);
+      return Promise.all(
+        messages.map(async (message) => {
+          if (message.role === "USER") return { ...message, sources: [] };
+          const sources = await findMessageSources(message.id);
+          return { ...message, sources };
+        }),
+      );
+    },
   );
-
-  const messagesWithSources = await Promise.all(
-    messages.map(async (message) => {
-      if (message.role === "USER") {
-        return {
-          ...message,
-          sources: [],
-        };
-      }
-
-      const sources = await findMessageSources(message.id);
-
-      return {
-        ...message,
-        sources,
-      };
-    }),
-  );
-
-  return messagesWithSources;
 }
 
 /**

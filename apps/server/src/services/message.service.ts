@@ -6,6 +6,7 @@ import {
 } from "@/repositories/message.repository";
 
 import { findConversationById } from "@/repositories/conversation.repository";
+import { cacheKeys, invalidateCache } from "@/utils/cache";
 
 /**
  * Creates a user message in the database.
@@ -33,11 +34,13 @@ export async function createUserMessage({
     throw createHttpError(404, "Conversation not found");
   }
 
-  return createMessage({
+  const message = await createMessage({
     conversationId,
     role: "USER",
     content,
   });
+  await invalidateCache(cacheKeys.conversationMessages(userId, conversationId));
+  return message;
 }
 
 /**

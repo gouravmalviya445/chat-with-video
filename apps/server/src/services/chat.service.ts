@@ -8,6 +8,7 @@ import { retrieveRelevantChunks } from "@services/retrieval.service";
 
 import { streamRagAnswer } from "@ai/llm/generate";
 import { RETRIVAL_TOP_K } from "@/constants";
+import { cacheKeys, invalidateCache } from "@/utils/cache";
 
 /**
  * Sends a message to the AI assistant with the given conversation and content.
@@ -57,6 +58,7 @@ export async function chatWithVideo({
     role: "USER",
     content,
   });
+  await invalidateCache(cacheKeys.conversationMessages(userId, conversationId));
 
   // 3. Retrieve relevant chunks
   const chunks = await retrieveRelevantChunks({
@@ -98,6 +100,7 @@ export async function chatWithVideo({
         content: text, // text is the final response of llm after streaming
         videoChunkIds
       })
+      await invalidateCache(cacheKeys.conversationMessages(userId, conversationId));
     },
   });
 
