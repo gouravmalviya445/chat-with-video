@@ -39,7 +39,7 @@ export function useVideo(videoId: string | null, config?: SWRConfiguration) {
     () => getVideo(videoId!),
     {
       refreshInterval: (video) =>
-        video?.status === "PENDING" || video?.status === "PROCESSING" ? 3000 : 0,
+        video?.status === "PENDING" || video?.status === "PROCESSING" ? 5000 : 0,
       revalidateOnFocus: true,
       ...config,
     }
