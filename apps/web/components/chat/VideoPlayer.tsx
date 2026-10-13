@@ -66,10 +66,10 @@ export function VideoPlayer({ video, seekTime }: VideoPlayerProps) {
               allowFullScreen
               className="w-full h-full border-0"
             />
-          ) : video.storageUrl ? (
+          ) : video.signedVideoURL ? (
             <video
               ref={videoRef}
-              src={video.storageUrl}
+              src={video.signedVideoURL}
               controls
               className="w-full h-full object-contain"
             />
