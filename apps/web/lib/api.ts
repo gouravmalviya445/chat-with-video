@@ -86,7 +86,6 @@ async function handleResponse<T>(res: Response): Promise<T> {
  */
 export async function getVideos(): Promise<Video[]> {
   const res = await fetch(`${API_PREFIX}/videos`, {
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   return handleResponse<Video[]>(res);
@@ -97,7 +96,6 @@ export async function getVideos(): Promise<Video[]> {
  */
 export async function getVideo(id: string): Promise<Video> {
   const res = await fetch(`${API_PREFIX}/videos/${id}`, {
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   return handleResponse<Video>(res);
@@ -187,7 +185,6 @@ export async function uploadFileToSupabase(
 export async function completeVideoUpload(videoId: string): Promise<{ id: string; status: VideoStatus }> {
   const res = await fetch(`${API_PREFIX}/videos/${videoId}/upload-complete`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   return handleResponse<{ id: string; status: VideoStatus }>(res);
@@ -199,7 +196,6 @@ export async function completeVideoUpload(videoId: string): Promise<{ id: string
 export async function deleteVideo(videoId: string): Promise<void> {
   const res = await fetch(`${API_PREFIX}/videos/${videoId}`, {
     method: "DELETE",
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   await handleResponse<null>(res);
@@ -210,7 +206,6 @@ export async function deleteVideo(videoId: string): Promise<void> {
  */
 export async function getVideoConversations(videoId: string): Promise<Conversation[]> {
   const res = await fetch(`${API_PREFIX}/videos/${videoId}/conversations`, {
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   return handleResponse<Conversation[]>(res);
@@ -234,7 +229,6 @@ export async function createConversation(videoId: string, title: string = "New C
  */
 export async function getConversationMessages(conversationId: string): Promise<Message[]> {
   const res = await fetch(`${API_PREFIX}/conversations/${conversationId}/messages`, {
-    headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
   return handleResponse<Message[]>(res);
