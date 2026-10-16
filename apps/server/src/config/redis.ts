@@ -6,6 +6,7 @@ const redis = new IORedis({
   port: Number(env?.REDIS_PORT),
   username: env?.REDIS_USERNAME,
   password: env?.REDIS_PASSWORD,
+  tls: Boolean(env?.REDIS_TLS) === true ? {} : undefined,
   maxRetriesPerRequest: null,  
 });
 

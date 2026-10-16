@@ -9,13 +9,18 @@ dotenv.config({
 const envSchema = z.object({
   PORT: z.string().optional().default("8001"),
   NODE_ENV: z.enum(["production", "development"]),
-  DATABASE_URL: z.url("DATABASE_URL is required" ),
+  
+  DATABASE_URL: z.url("DATABASE_URL is required"),
+  
   REDIS_HOST: z.string("REDIS_HOST is required"),
   REDIS_PORT: z.string().default("6379"),
   REDIS_USERNAME: z.string("REDIS_USERNAME is required"),
   REDIS_PASSWORD: z.string("REDIS_PASSWORD is required"),
+  REDIS_TLS: z.string().default(""),
+  
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+  
   SUPABASE_URL: z.url("SUPABASE_URL is required"),
   SUPABASE_SERVICE_ROLE_KEY: z.string("SUPABASE_SERVICE_ROLE_KEY is required"),
   SUPABASE_STORAGE_BUCKET: z.string("SUPABASE_STORAGE_BUCKET is required"),
