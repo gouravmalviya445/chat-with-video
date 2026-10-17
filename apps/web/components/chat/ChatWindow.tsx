@@ -152,7 +152,7 @@ export function ChatWindow({ videoId, onSeek }: ChatWindowProps) {
       <div className="sketch-box p-8 text-center bg-paper-card my-4">
         <Loader2 className="w-6 h-6 animate-spin text-neutral-900 mx-auto mb-2" />
         <p className="font-handwritten text-lg text-neutral-800">
-          Opening notebook chat...
+          Opening video chat...
         </p>
       </div>
     );
@@ -164,7 +164,7 @@ export function ChatWindow({ videoId, onSeek }: ChatWindowProps) {
       <div className="pb-3 mb-2 border-b-2 border-dashed border-neutral-300 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-handwritten text-xl font-bold text-neutral-900">
-            Video Notebook Chat
+            Video Chat
           </span>
           <span className="text-[10px] font-bold bg-yellow-200 text-neutral-900 px-2 py-0.5 rounded border border-neutral-900">
             RAG Active
