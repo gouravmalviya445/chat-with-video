@@ -20,6 +20,9 @@ const envSchema = z.object({
   
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+
+  GOOGLE_CLIENT_ID: z.string("Google_CLIENT_ID is required"),
+  GOOGLE_CLIENT_SECRET: z.string("Google_CLIENT_SECRET is required"),
   
   SUPABASE_URL: z.url("SUPABASE_URL is required"),
   SUPABASE_SERVICE_ROLE_KEY: z.string("SUPABASE_SERVICE_ROLE_KEY is required"),

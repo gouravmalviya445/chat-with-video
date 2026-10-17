@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, google } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 
 import db from "@db";
@@ -23,5 +23,12 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     ...(env?.CORS_ORIGIN ? [env.CORS_ORIGIN] : [])
-  ]
+  ],
+
+  socialProviders: {
+    google: {
+      clientId: env?.GOOGLE_CLIENT_ID!,
+      clientSecret: env?.GOOGLE_CLIENT_SECRET!
+    }
+  }
 })
