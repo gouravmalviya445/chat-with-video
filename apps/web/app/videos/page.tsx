@@ -38,7 +38,7 @@ export default function VideosPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral-900 bg-amber-100 text-neutral-800 text-xs font-bold mb-2 shadow-[1px_1px_0px_#171717]">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              Your Notebook Library
+              Your Video Library
             </div>
             <h1 className="font-handwritten text-4xl sm:text-5xl font-bold text-neutral-900 tracking-tight">
               Your <span className="marker-highlight">videos</span>
@@ -94,7 +94,7 @@ export default function VideosPage() {
           <div className="sketch-box p-12 text-center my-8 bg-paper-card">
             <Loader2 className="w-8 h-8 animate-spin text-neutral-900 mx-auto mb-3" />
             <p className="font-handwritten text-xl font-bold text-neutral-800">
-              Fetching your notebook videos...
+              Fetching your videos...
             </p>
           </div>
         ) : videos.length === 0 ? (

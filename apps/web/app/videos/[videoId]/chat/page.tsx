@@ -132,7 +132,7 @@ export default function VideoChatPage({ params }: VideoChatPageProps) {
           <div className="sketch-box p-12 text-center my-8 bg-paper-card">
             <Loader2 className="w-8 h-8 animate-spin text-neutral-900 mx-auto mb-3" />
             <p className="font-handwritten text-xl font-bold text-neutral-800">
-              Opening video notebook...
+              Opening video...
             </p>
           </div>
         ) : error || !video ? (
