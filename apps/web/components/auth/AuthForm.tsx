@@ -7,6 +7,9 @@ import { signIn, signUp } from "@/lib/auth-client";
 import { loginSchema, signUpSchema } from "@/validators";
 import { ArrowRight, Video, Lock, Mail, User, AlertCircle, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui";
+import { GoogleIcon } from "../icon";
+import GithubIcon from "../icon/GithubIcon";
+import { env } from "@/config/env";
 
 interface AuthFormProps {
   mode: "login" | "register";
@@ -144,7 +147,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <div className="w-28 h-6 bg-amber-100/90 border border-amber-200/80 shadow-xs rotate-[-1.5deg] backdrop-blur-xs flex items-center justify-center">
           <span className="text-[10px] font-handwritten text-amber-800/60 uppercase tracking-widest font-bold">
-            notebook note
+            video notes
           </span>
         </div>
       </div>
@@ -218,6 +221,30 @@ export function AuthForm({ mode }: AuthFormProps) {
           >
             {mode === "login" ? "Login" : "Register Account"}
           </Button>
+          <div className="grid grid-cols-1 gap-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full py-2.5 text-sm mt-2"
+              leftIcon={<GoogleIcon className="w-4 h-4" />}
+              onClick={async () => { 
+                await signIn.social({
+                  provider: "google",
+                  callbackURL: env.NEXT_PUBLIC_CALLBACK_URL
+                })
+              }}
+            >
+              Continue with Google
+            </Button>
+            {/* <Button
+              type="button"
+              variant="outline"
+              className="w-full py-2.5 text-sm mt-2"
+              leftIcon={<GithubIcon className="w-6 h-6" />}
+            >
+              Continue with Github
+            </Button> */}
+          </div>
         </form>
 
         {/* Dedicated Route Link Footer */}
