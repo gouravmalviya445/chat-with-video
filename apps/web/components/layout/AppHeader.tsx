@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOut, useSession } from "@/lib/auth-client";
 import { LogOut, Sparkles, Video, User } from "lucide-react";
 import { Button } from "@/components/ui";
+import Image from "next/image";
 
 export function AppHeader() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export function AppHeader() {
       router.push("/login");
     } catch (err) {
       console.error("Failed to sign out", err);
+      alert("Failed to sign out");
     }
   };
 
@@ -34,29 +36,54 @@ export function AppHeader() {
             <Sparkles className="w-4 h-4 text-amber-500 inline-block animate-pulse" />
           </span>
           <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-500">
-            Notebook RAG
+            Video RAG
           </span>
         </div>
       </Link>
 
       {session?.user ? (
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 text-xs font-semibold sketch-box-sm bg-amber-50 text-neutral-800">
-            <User className="w-3.5 h-3.5 text-neutral-700" />
-            <span className="truncate max-w-40">
-              {session.user.name || session.user.email}
-            </span>
-          </div>
-          <Button
-            onClick={handleSignOut}
-            variant="secondary"
-            size="sm"
-            leftIcon={<LogOut className="w-3.5 h-3.5" />}
-            title="Sign out"
-            className="hover:text-red-600"
-          >
-            <span className="hidden xs:inline">Sign Out</span>
-          </Button>
+          <details className="group relative">
+            <summary
+              aria-label="Open profile details"
+              className="flex cursor-pointer list-none items-center gap-2 px-2 py-1 text-xs font-semibold text-neutral-800 sketch-box-sm bg-amber-50 [&::-webkit-details-marker]:hidden"
+            >
+              {session.user.image ? (
+                <Image
+                  src={session.user.image}
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white">
+                  <User className="h-4 w-4 text-neutral-700" />
+                </span>
+              )}
+              <span className="hidden max-w-40 truncate sm:inline">
+                {session.user.name || session.user.email}
+              </span>
+            </summary>
+            <div className="absolute right-0 top-full z-40 mt-2 w-64 sketch-box-sm bg-paper-card p-4 text-neutral-900 shadow-sketch-sm">
+              <p className="truncate text-sm font-bold">
+                {session.user.name || "User"}
+              </p>
+              <p className="mt-1 break-all text-xs text-neutral-600">
+                {session.user.email}
+              </p>
+              <Button
+                onClick={handleSignOut}
+                variant="secondary"
+                size="sm"
+                leftIcon={<LogOut className="w-3.5 h-3.5" />}
+                title="Sign out"
+                className="mt-4 w-full hover:text-red-600"
+              >
+                Sign Out
+              </Button>
+            </div>
+          </details>
         </div>
       ) : (
         <Link
