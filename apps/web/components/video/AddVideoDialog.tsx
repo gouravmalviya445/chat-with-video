@@ -200,7 +200,7 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
           <form onSubmit={handleYouTubeSubmit} className="space-y-4">
             <div>
               <label className="block font-handwritten text-sm font-bold text-neutral-800 mb-1">
-                Video Title
+                Video Title <span className="text-neutral-500">(optional)</span>
               </label>
               <input
                 type="text"

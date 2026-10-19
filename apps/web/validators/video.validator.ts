@@ -3,7 +3,7 @@ import { z } from "zod";
 export const youtubeVideoSchema = z.object({
   title: z
     .string()
-    .min(2, "Title must be at least 2 characters"),
+    .default(""),
   youtubeUrl: z
     .string()
     .min(1, "YouTube URL is required")
