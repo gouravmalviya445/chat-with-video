@@ -7,6 +7,7 @@ import { createVideoUploadSchema, createYouTubeVideoSchema, getUserVideosSchema 
 import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
 import { createVideoSignedUrl, createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
+import { getYouTubeVideoTitle } from "@/utils/youtube";
 
 
 /**
@@ -19,14 +20,14 @@ async function createYtVideo(
 ) {
   try {
     // parsed req body
-    const parsed = createYouTubeVideoSchema.safeParse(req.body);
+    const { success, data, error} = createYouTubeVideoSchema.safeParse(req.body);
 
     // check if parsed body is valid
-    if (!parsed.success) {
+    if (!success) {
       next(
         createHttpError(
           400,
-          parsed.error.issues
+          error.issues
             .map((issue) => `${issue.message}`)
             .join("\n")
         )
@@ -34,11 +35,22 @@ async function createYtVideo(
       return;
     }
 
+    let title = data.title;
+    let youtubeUrl = data.youtubeUrl;
+    if (!title) { 
+      title = await getYouTubeVideoTitle(youtubeUrl);
+    }
+
+    if (!title) { 
+      next(createHttpError(400, "Failed to get video title please try again or provide a title"));
+      return;
+    }
+
     // store video metadata in db
     const video = await createYouTubeVideo({
       userId: req.user.id,
-      title: parsed.data.title,
-      youtubeUrl: parsed.data.youtubeUrl,
+      title,
+      youtubeUrl
     });
 
     if (!video) {

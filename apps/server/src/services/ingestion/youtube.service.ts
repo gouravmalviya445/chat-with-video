@@ -1,4 +1,4 @@
-import { YoutubeTranscript } from "youtube-transcript";
+import { fetchTranscript } from "youtube-transcript-plus";
 
 import type { TranscriptSegment } from "./types";
 import { extractYouTubeVideoId } from "@/utils/youtube";
@@ -15,7 +15,7 @@ export async function getYouTubeTranscript(
   const videoId = extractYouTubeVideoId(url);
 
   // fetch transcript of video
-  const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+  const transcript = await fetchTranscript(videoId);
 
   // return transcript with required format for chunking
   return transcript.map((segment) => ({

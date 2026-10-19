@@ -1,3 +1,28 @@
+import { Innertube } from "youtubei.js";
+
+declare global { 
+  var youtube: Innertube
+}
+
+export async function getInnertubeInstance() { 
+  if (global.youtube) {
+    return global.youtube
+  }
+
+  global.youtube = await Innertube.create();
+  return global.youtube
+}
+
+export async function getYouTubeVideoTitle(
+  url: string
+) { 
+  const videoId = extractYouTubeVideoId(url);
+  const youtube = await getInnertubeInstance();
+  const video = await youtube.getBasicInfo(videoId);
+  
+  return video.basic_info.title ?? "";
+}
+
 export function extractYouTubeVideoId(url: string): string {
   try {
     const parsedUrl = new URL(url); // parse the url
