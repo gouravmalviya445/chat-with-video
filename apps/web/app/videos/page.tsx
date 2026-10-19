@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AddVideoDialog } from "@/components/video/AddVideoDialog";
 import { VideoGrid } from "@/components/video/VideoGrid";
@@ -7,10 +8,14 @@ import { EmptyState, Button } from "@/components/ui";
 import { useVideos } from "@/hooks";
 import { useUiStore } from "@/store";
 import { deleteVideo } from "@/lib/api";
-import { Upload, Plus, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Upload, Plus, Loader2, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 10;
 
 export default function VideosPage() {
-  const { videos, isLoading, isError, error, mutateVideos } = useVideos();
+  const [page, setPage] = useState(0);
+  const offset = page * PAGE_SIZE;
+  const { videos, isLoading, isError, error, mutateVideos } = useVideos(PAGE_SIZE, offset);
   const { openAddVideoModal } = useUiStore();
 
   const handleDeleteVideo = async (videoId: string) => {
@@ -97,10 +102,38 @@ export default function VideosPage() {
               Fetching your videos...
             </p>
           </div>
-        ) : videos.length === 0 ? (
+        ) : videos.length === 0 && page === 0 ? (
           <EmptyState onAddClick={() => openAddVideoModal("youtube")} />
+        ) : videos.length === 0 ? (
+          <div className="sketch-box p-8 text-center bg-paper-card">
+            <p className="font-handwritten text-xl font-bold text-neutral-800">No videos on this page.</p>
+          </div>
         ) : (
           <VideoGrid videos={videos} onDelete={handleDeleteVideo} />
+        )}
+
+        {!isLoading && !isError && (page > 0 || videos.length === PAGE_SIZE) && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage((current) => Math.max(0, current - 1))}
+              disabled={page === 0}
+              leftIcon={<ChevronLeft className="w-4 h-4" />}
+            >
+              Previous
+            </Button>
+            <span className="text-sm font-semibold text-neutral-700">Page {page + 1}</span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage((current) => current + 1)}
+              disabled={videos.length < PAGE_SIZE || offset >= 100}
+              rightIcon={<ChevronRight className="w-4 h-4" />}
+            >
+              Next
+            </Button>
+          </div>
         )}
       </main>
 

@@ -84,8 +84,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
 /**
  * Fetch all user videos
  */
-export async function getVideos(): Promise<Video[]> {
-  const res = await fetch(`${API_PREFIX}/videos`, {
+export async function getVideos(limit = 10, offset = 0): Promise<Video[]> {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  const res = await fetch(`${API_PREFIX}/videos?${params.toString()}`, {
     credentials: "include",
   });
   return handleResponse<Video[]>(res);

@@ -9,10 +9,10 @@ import {
 /**
  * SWR Hook to fetch all user videos with automatic caching and revalidation
  */
-export function useVideos(config?: SWRConfiguration) {
+export function useVideos(limit = 12, offset = 0, config?: SWRConfiguration) {
   const { data, error, isLoading, mutate } = useSWR<Video[]>(
-    `${API_PREFIX}/videos`,
-    () => getVideos(),
+    `${API_PREFIX}/videos?limit=${limit}&offset=${offset}`,
+    () => getVideos(limit, offset),
     {
       revalidateOnFocus: true,
       dedupingInterval: 5000,
