@@ -19,6 +19,8 @@ A multimodal **Retrieval-Augmented Generation (RAG)** platform for conversationa
 - [Monorepo Structure](#monorepo-structure)
 - [API Reference](#api-reference)
 - [Getting Started](#getting-started)
+  - [Docker Compose Setup](#docker-compose-setup)
+  - [Local Development](#local-development)
 - [License](#license)
 
 ---
@@ -446,84 +448,89 @@ chat-with-video-rag/
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) (>= 1.1)
-- [Docker & Docker Compose](https://www.docker.com/)
-- [FFmpeg](https://ffmpeg.org/) (required for audio slicing of uploaded videos)
+- [Docker & Docker Compose](https://www.docker.com/) for the Compose setup
+- [Bun](https://bun.sh/) (version 1.3.14) for local development
+- [FFmpeg](https://ffmpeg.org/) for processing uploaded videos when running the worker locally
 - A [Google Gemini API Key](https://aistudio.google.com/)
 - A [Supabase](https://supabase.com/) project with a Storage bucket
 
-### Environment Configuration
+### Docker Compose Setup
 
-**Backend (`apps/server/.env`)**, based on `apps/server/.env.example`:
+Compose starts PostgreSQL with pgvector, Redis, the API and worker, and the Next.js web app. Create the environment files referenced by Compose:
+
+```bash
+cp apps/server/.env.example apps/server/.env
+cp apps/web/.env.example apps/web/.env
+```
+
+Edit `apps/server/.env` and provide your Gemini, Supabase, and Better Auth settings. For the local Compose services, use these connection values (the hostnames are the Compose service names):
 
 ```env
-PORT=5000
+PORT=8000
 NODE_ENV=development
-CORS_ORIGIN=http://localhost:3000
-
-# PostgreSQL (pgvector)
-DATABASE_URL=postgres://postgres:password@localhost:5432/video_rag
-
-# Redis
-REDIS_HOST=localhost
+DATABASE_URL=postgres://postgres:password@postgres:5432/video_rag
+REDIS_HOST=redis
 REDIS_PORT=6379
-
-# Better Auth
-BETTER_AUTH_SECRET=your_super_secret_auth_key_at_least_32_characters
-BETTER_AUTH_URL=http://localhost:5000
-
-# Google OAuth (optional)
+REDIS_USERNAME=
+REDIS_PASSWORD=
+REDIS_TLS=
+BETTER_AUTH_SECRET=replace_with_a_random_secret_at_least_32_characters
+BETTER_AUTH_URL=http://localhost:8000
+CORS_ORIGIN=http://localhost:3000
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# Google Gemini API
 GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
-
-# Supabase Storage
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 SUPABASE_STORAGE_BUCKET=video-uploads
 ```
 
-**Frontend (`apps/web/.env`)**, based on `apps/web/.env.example`:
+Google OAuth credentials should be configured for the app's callback URL if you use Google sign-in.
+
+In `apps/web/.env`, set the API URL to the host-mapped API port. This value is used when the web image is built:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:5000
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_CALLBACK_URL=http://localhost:3000
 ```
 
-### Database Setup
+Build and start the stack from the repository root:
 
-1. Start PostgreSQL (with `pgvector`) and Redis:
+```bash
+docker compose up --build -d
+```
 
-   ```bash
-   docker compose up -d
-   ```
+The backend container runs database migrations at startup. To follow startup logs or stop the stack:
 
-2. Push the Drizzle schema:
+```bash
+docker compose logs -f server
+docker compose down
+```
 
-   ```bash
-   bun run --filter=backend db:push
-   ```
+`docker compose down` preserves the database and Redis data in named volumes. To remove those volumes and their data as well, run `docker compose down -v`.
 
-3. *(Optional)* Inspect tables with Drizzle Studio:
+| Service | URL |
+| --- | --- |
+| Frontend | [http://localhost:3000](http://localhost:3000) |
+| Backend API | [http://localhost:8000](http://localhost:8000) |
 
-   ```bash
-   bun run --filter=backend db:studio
-   ```
+### Local Development
 
-### Running the Project
+For running the apps on the host instead, start PostgreSQL and Redis first:
+
+```bash
+docker compose up -d postgres redis
+```
+
+Set `DATABASE_URL` to use `localhost:5432` in `apps/server/.env`, and set `REDIS_HOST=localhost`. Install dependencies and start the development apps:
 
 ```bash
 bun install
 bun run dev
 ```
 
-| Service     | URL                                                            |
-| ----------- | -------------------------------------------------------------- |
-| Frontend    | [http://localhost:3000](http://localhost:3000)                 |
-| Backend API | [http://localhost:5000](http://localhost:5000)                 |
-| Health      | [http://localhost:5000/api/health](http://localhost:5000/api/health) |
+The API defaults to port `8000`; the frontend runs at [http://localhost:3000](http://localhost:3000). Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in `apps/web/.env`.
 
 ---
 
