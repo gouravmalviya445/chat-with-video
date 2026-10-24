@@ -10,7 +10,7 @@ import { useUiStore } from "@/store";
 import { deleteVideo } from "@/lib/api";
 import { Upload, Plus, Loader2, Sparkles, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 export default function VideosPage() {
   const [page, setPage] = useState(0);

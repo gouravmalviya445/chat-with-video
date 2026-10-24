@@ -19,6 +19,8 @@ interface AddVideoDialogProps {
   onSuccess?: () => void;
 }
 
+const VIDEO_FILE_SIZE = 50 * 1000 * 1000 // approx 50MB
+
 export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
   const { isAddVideoOpen, closeAddVideoModal, addVideoTab } = useUiStore();
   const [tab, setTab] = useState<"youtube" | "upload">(addVideoTab || "youtube");
@@ -41,8 +43,16 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
     setError(null);
     setFieldErrors({});
     closeAddVideoModal();
+    setUploadTitle("");
+    setFile(null);
+    setUploadProgress("");
+    setUploadPercent(null);
+    setYtTitle("");
+    setYtUrl("");
+    setTab("youtube");
   };
 
+  // youtube video submit handler
   const handleYouTubeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -78,6 +88,7 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
     }
   };
 
+  // upload video submit handler
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -98,6 +109,10 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
     if (!file) {
       setError("Please select a video file to upload.");
       return;
+    }
+
+    if (file.size >= VIDEO_FILE_SIZE) {
+      setError(`Video file size must be less than ${VIDEO_FILE_SIZE / 10_00_000}MB.`);
     }
 
     setIsLoading(true);
