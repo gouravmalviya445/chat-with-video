@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: video-rag-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: video_rag
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: video-rag-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: video-rag-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - apps/server/.env
+    depends_on:
+      - postgres
+      - redis
+  
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      secrets:
+        - web_env
+    container_name: video-rag-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - apps/web/.env
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:
+  redis_data:
+    
+secrets:
+  web_env:
+    file: apps/web/.env
