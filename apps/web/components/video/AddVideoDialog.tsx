@@ -139,9 +139,10 @@ export function AddVideoDialog({ onSuccess }: AddVideoDialogProps) {
       handleClose();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to upload video.");
-      setUploadPercent(null);
     } finally {
       setIsLoading(false);
+      setUploadPercent(null);
+      setUploadProgress("");
     }
   };
 
