@@ -1,4 +1,4 @@
-import { fetchTranscript } from "youtube-transcript-plus";
+import { fetchTranscript } from "youtube-transcript";
 
 import type { TranscriptSegment } from "./types";
 import { extractYouTubeVideoId } from "@/utils/youtube";

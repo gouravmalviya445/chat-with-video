@@ -8,6 +8,7 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
 import { createVideoSignedUrl, createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
 import { getYouTubeVideoTitle } from "@/utils/youtube";
+import { unknown } from "better-auth";
 
 
 /**
@@ -38,7 +39,12 @@ async function createYtVideo(
     let title = data.title;
     let youtubeUrl = data.youtubeUrl;
     if (!title) { 
-      title = await getYouTubeVideoTitle(youtubeUrl);
+      try { 
+        title = await getYouTubeVideoTitle(youtubeUrl);
+      } catch (error: any) {
+        next(createHttpError(500, error?.message || "Failed to get video title please try again"));
+        return;
+      }
     }
 
     if (!title) { 
