@@ -33,7 +33,7 @@
         "langchain": "^1.5.10",
         "morgan": "^1.12.0",
         "pg": "^8.23.0",
-        "youtube-transcript": "^1.3.1",
+        "youtube-transcript-plus": "^2.0.3",
         "youtubei.js": "^18.3.0",
         "zod": "^4.4.3",
       },
@@ -1618,7 +1618,7 @@
 
     "yocto-queue": ["yocto-queue@0.1.0", "", {}, "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="],
 
-    "youtube-transcript": ["youtube-transcript@1.3.1", "", {}, "sha512-NDCjwad113TGybbYF51y9Z4tcwzBHUZWQdF9veULNca18L+FdDbHHtTHIr69WVa3bB90l67S8kN0HtL2JO9fhg=="],
+    "youtube-transcript-plus": ["youtube-transcript-plus@2.0.3", "", {}, "sha512-7bAu4SMczQBin8JOiux3NOXOTxnLps9FBhVvyVsb4WfIYjNlVt7PXz8SdfNP/enZGfGpv1gCokzinwqXMnQGmQ=="],
 
     "youtubei.js": ["youtubei.js@18.3.0", "", { "dependencies": { "@bufbuild/protobuf": "^2.0.0", "fflate": "^0.8.2", "meriyah": "^7.3.1" } }, "sha512-6Cwn/U8a+OjpZp5XgqOjwy7Lk0RrGavm3I5zO7qZWO+fes20vhWMZnlUs0h/97SwjS0AsxAZrZ5bJ85XBJVWTw=="],
 

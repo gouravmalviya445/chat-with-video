@@ -8,8 +8,6 @@ import { ApiResponse } from "@/utils/ApiResponse";
 import createHttpError from "http-errors";
 import { createVideoSignedUrl, createVideoUploadUrl, getVideoStoragePath, videoObjectExists } from "@/services/storage.service";
 import { getYouTubeVideoTitle } from "@/utils/youtube";
-import { unknown } from "better-auth";
-
 
 /**
  * creates a youtube video entry in the database and pushes a job to the queue for fetching and processing the video.
